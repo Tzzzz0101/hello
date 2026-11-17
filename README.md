@@ -22,6 +22,7 @@
 ```
 sy2ds
 ├── pom.xml                     # war 打包，finalName=emp-mis
+├── scripts/                    # run.ps1（打包+部署+启动）/ stop.ps1（停止）
 ├── sql/init.sql                # 建库、建表、索引、约束、种子数据、最小权限账号
 ├── docs/                       # 接口清单、ApiFox 用例、规范清单、截图
 ├── src/main/java/com/lab/emp
@@ -47,6 +48,22 @@ sy2ds
 
 ## 3. 快速开始
 
+### 3.1 一键启动（推荐）
+
+仓库自带 Tomcat 9（`.runtime/tomcat9`），脚本会依次完成“打包 → 部署 → 启动 → 健康检查”：
+
+```powershell
+# 在仓库根目录执行（PowerShell）
+.\scripts\run.ps1              # 打包 + 部署 + 启动，成功后打印访问地址
+.\scripts\run.ps1 -SkipBuild   # war 已是最新时，跳过 Maven 打包
+.\scripts\stop.ps1             # 停止服务
+```
+
+启动成功后：页面 <http://127.0.0.1:8080/emp-mis/>，健康检查 <http://127.0.0.1:8080/emp-mis/health>；
+日志在 `.runtime/tomcat9/logs/emp-mis.log`（应用、SQL、WebLog）与 `catalina.<日期>.log`（容器）。
+
+### 3.2 手工步骤（换机器 / 换 Tomcat 时）
+
 ```bash
 # 1) 初始化数据库（会重建 ssm_emp 库，谨慎执行）
 mysql -uroot -p < sql/init.sql
@@ -65,6 +82,16 @@ copy target/emp-mis.war %CATALINA_HOME%\webapps\
 #    http://localhost:8080/emp-mis/        页面
 #    http://localhost:8080/emp-mis/health  健康检查
 ```
+
+### 3.3 在 IntelliJ IDEA 里运行 / 调试
+
+1. **先让 IDEA 认识依赖**：打开 `pom.xml` → 右键 `Maven` → `Reload project`（或 Maven 面板点刷新）。
+   若编译报 `程序包 com.fasterxml.jackson.datatype.jsr310 不存在`，就是 Maven 依赖没同步，重新加载即可；命令行 `.\mvnw.cmd -B -DskipTests compile` 能过就说明代码与 pom 没问题。
+2. **配置 Tomcat**：`Run → Edit Configurations → + → Tomcat Server → Local`，选本机 Tomcat 9 目录；
+   `Deployment` 添加 `emp-mis:war exploded`，`Application context` 填 `/emp-mis`；`Server` 端口 8080。
+3. 启动后同样访问 <http://localhost:8080/emp-mis/>，断点可直接打在 Controller / Service 上。
+
+> 只改 Java 代码、不改 pom 时，`Build → Build Project` 即可；改了 pom 一定要重新 Reload Maven，否则 IDEA 的编译类路径还是旧的。
 
 实验账号：`admin / 123456`（口令以 SHA-256 摘要存入库中，明文不落库、不进日志）。
 
