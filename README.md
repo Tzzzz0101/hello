@@ -116,6 +116,17 @@ curl -b c.txt -X POST "http://localhost:8080/emp-mis/emps/tx-demo?scenario=rollb
 | `self` | `persisted=true` | `this` 自调用绕过代理，注解不生效 |
 | `private` | `persisted=true` | private 方法无法被 CGLIB 代理重写 |
 
-## 7. 说明
+## 7. 文档与交付物
+
+| 文件 | 内容 |
+| --- | --- |
+| `docs/《JAVA框架技术(一)》实验二实验报告.docx` | 实验报告正文（六部分 + 附录 A–D，含架构图、界面截图、SQL 日志与测试结果） |
+| `docs/api.md` | 接口清单：路径、入参、返回示例与错误码 |
+| `docs/apifox-cases.md` | ApiFox 用例建模（TC-01～TC-21）与执行结果 |
+| `docs/standards.md` | 企业开发规范清单（12 条，逐条对应落地文件） |
+| `docs/screenshots/` | 架构图、界面截图、控制台日志与测试结果截图 |
+| `docs/evidence/` | 原始验证记录：HTTP 回归日志、单元测试输出、控制台 SQL 日志节选 |
+
+## 8. 说明
 
 本项目为课程实验作品：AI 工具参与代码骨架生成与文档整理，全部代码经本地编译、单元测试与真实 HTTP 调用验证；数据源口令使用实验专用最小权限账号，不含任何真实个人或生产环境凭据。
