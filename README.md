@@ -121,6 +121,7 @@ curl -b c.txt -X POST "http://localhost:8080/emp-mis/emps/tx-demo?scenario=rollb
 | 文件 | 内容 |
 | --- | --- |
 | `docs/《JAVA框架技术(一)》实验二实验报告.docx` | 实验报告正文（六部分 + 附录 A–D，含架构图、界面截图、SQL 日志与测试结果） |
+| `docs/《JAVA框架技术(一)》实验二实验报告（教务处模板）.docx` | 按教务处《java实验二》模板排版：第 1 页封面（左“一、实验目的”、右“二、实验环境”），第 2 页起正文 |
 | `docs/api.md` | 接口清单：路径、入参、返回示例与错误码 |
 | `docs/apifox-cases.md` | ApiFox 用例建模（TC-01～TC-21）与执行结果 |
 | `docs/standards.md` | 企业开发规范清单（12 条，逐条对应落地文件） |
