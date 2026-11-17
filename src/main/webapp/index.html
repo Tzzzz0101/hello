@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMP 员工管理 MIS 系统</title>
+    <style>
+        :root {
+            --ink: #1f2937;
+            --muted: #6b7280;
+            --line: #e5e7eb;
+            --bg: #f5f6f8;
+            --brand: #2f5d8a;
+            --brand-dark: #24486b;
+            --danger: #b3261e;
+            --ok: #1f7a4d;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", sans-serif;
+            color: var(--ink);
+            background: var(--bg);
+            font-size: 14px;
+        }
+
+        button {
+            font-family: inherit;
+            font-size: 14px;
+            cursor: pointer;
+            border: 1px solid var(--line);
+            background: #fff;
+            color: var(--ink);
+            padding: 7px 14px;
+            border-radius: 4px;
+        }
+
+        button:hover { border-color: #c8ccd4; }
+
+        button.primary {
+            background: var(--brand);
+            border-color: var(--brand);
+            color: #fff;
+        }
+
+        button.primary:hover { background: var(--brand-dark); }
+
+        button.danger { color: var(--danger); }
+
+        button:disabled { opacity: .5; cursor: not-allowed; }
+
+        input, select {
+            font-family: inherit;
+            font-size: 14px;
+            padding: 7px 9px;
+            border: 1px solid var(--line);
+            border-radius: 4px;
+            background: #fff;
+            color: var(--ink);
+        }
+
+        input:focus, select:focus { outline: 2px solid #cddff0; border-color: var(--brand); }
+
+        /* ---------- 登录 ---------- */
+        #loginView {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-card {
+            width: 360px;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 30px 32px 26px;
+            box-shadow: 0 8px 24px rgba(31, 41, 55, .06);
+        }
+
+        .login-card h1 {
+            font-size: 19px;
+            margin: 0 0 4px;
+        }
+
+        .login-card p.sub {
+            margin: 0 0 22px;
+            color: var(--muted);
+            font-size: 12.5px;
+        }
+
+        .field { margin-bottom: 14px; }
+
+        .field label {
+            display: block;
+            font-size: 12.5px;
+            color: var(--muted);
+            margin-bottom: 5px;
+        }
+
+        .field input { width: 100%; }
+
+        .login-card button { width: 100%; margin-top: 6px; }
+
+        .hint {
+            margin-top: 14px;
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        /* ---------- 主界面 ---------- */
+        #appView { display: none; }
+
+        header.top {
+            background: #fff;
+            border-bottom: 1px solid var(--line);
+            padding: 0 26px;
+            height: 58px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand { display: flex; align-items: baseline; gap: 10px; }
+        .brand strong { font-size: 16px; letter-spacing: .5px; }
+        .brand span { color: var(--muted); font-size: 12px; }
+
+        .userbox { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 13px; }
+
+        main { padding: 20px 26px 34px; max-width: 1240px; margin: 0 auto; }
+
+        .toolbar {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            padding: 14px 16px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .toolbar .grow { flex: 1; }
+
+        .panel {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+
+        thead th {
+            text-align: left;
+            font-weight: 600;
+            font-size: 12.5px;
+            color: var(--muted);
+            background: #fafbfc;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--line);
+            white-space: nowrap;
+        }
+
+        tbody td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #f1f2f4;
+            vertical-align: middle;
+        }
+
+        tbody tr:hover { background: #fbfcfd; }
+
+        td.num { font-variant-numeric: tabular-nums; }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            border: 1px solid;
+        }
+
+        .badge.on { color: var(--ok); border-color: #b7dcc8; background: #f2faf5; }
+        .badge.off { color: var(--muted); border-color: var(--line); background: #f7f8fa; }
+
+        .actions { display: flex; gap: 6px; }
+        .actions button { padding: 4px 10px; font-size: 12.5px; }
+
+        .pager {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .pager .right { display: flex; align-items: center; gap: 8px; }
+
+        .empty { padding: 42px; text-align: center; color: var(--muted); }
+
+        /* ---------- 弹窗 ---------- */
+        .mask {
+            position: fixed;
+            inset: 0;
+            background: rgba(17, 24, 39, .38);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+        }
+
+        .mask.show { display: flex; }
+
+        .dialog {
+            width: 480px;
+            background: #fff;
+            border-radius: 8px;
+            padding: 22px 24px;
+        }
+
+        .dialog h2 { font-size: 16px; margin: 0 0 18px; }
+
+        .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 14px; }
+
+        .grid2 .field { margin: 0; }
+
+        .grid2 input, .grid2 select { width: 100%; }
+
+        .dialog .foot { margin-top: 22px; display: flex; justify-content: flex-end; gap: 10px; }
+
+        .err { color: var(--danger); font-size: 12.5px; margin-top: 10px; min-height: 18px; }
+
+        /* ---------- 提示 ---------- */
+        #toast {
+            position: fixed;
+            top: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1f2937;
+            color: #fff;
+            padding: 9px 18px;
+            border-radius: 4px;
+            font-size: 13px;
+            opacity: 0;
+            transition: opacity .18s;
+            pointer-events: none;
+            z-index: 40;
+        }
+
+        #toast.show { opacity: .95; }
+        #toast.error { background: var(--danger); }
+    </style>
+</head>
+<body>
+
+<!-- ==================== 登录 ==================== -->
+<div id="loginView">
+    <form class="login-card" id="loginForm">
+        <h1>EMP 员工管理 MIS 系统</h1>
+        <p class="sub">SSM 整合实验 · 登录后进入员工管理</p>
+
+        <div class="field">
+            <label for="username">用户名</label>
+            <input id="username" name="username" autocomplete="username" placeholder="请输入用户名" required>
+        </div>
+        <div class="field">
+            <label for="password">口令</label>
+            <input id="password" name="password" type="password" autocomplete="current-password"
+                   placeholder="请输入口令" required>
+        </div>
+
+        <button class="primary" type="submit" id="loginBtn">登 录</button>
+        <div class="err" id="loginErr"></div>
+        <div class="hint">实验账号：admin / 123456（口令以 SHA-256 摘要存储）</div>
+    </form>
+</div>
+
+<!-- ==================== 主界面 ==================== -->
+<div id="appView">
+    <header class="top">
+        <div class="brand">
+            <strong>EMP 员工管理</strong>
+            <span>Spring + SpringMVC + MyBatis-Plus</span>
+        </div>
+        <div class="userbox">
+            <span id="whoami"></span>
+            <button id="logoutBtn">退出登录</button>
+        </div>
+    </header>
+
+    <main>
+        <div class="toolbar">
+            <input id="qName" placeholder="姓名（模糊）" style="width:150px">
+            <select id="qGender">
+                <option value="">全部性别</option>
+                <option value="男">男</option>
+                <option value="女">女</option>
+            </select>
+            <select id="qDept">
+                <option value="">全部部门</option>
+            </select>
+            <select id="qStatus">
+                <option value="">全部状态</option>
+                <option value="1">在职</option>
+                <option value="0">离职</option>
+            </select>
+            <button class="primary" id="searchBtn">查询</button>
+            <button id="resetBtn">重置</button>
+            <div class="grow"></div>
+            <button id="batchDelBtn" class="danger">批量删除</button>
+            <button class="primary" id="addBtn">+ 新增员工</button>
+        </div>
+
+        <div class="panel">
+            <table>
+                <thead>
+                <tr>
+                    <th style="width:36px"><input type="checkbox" id="checkAll" title="全选"></th>
+                    <th style="width:64px">编号</th>
+                    <th>姓名</th>
+                    <th style="width:60px">性别</th>
+                    <th>部门</th>
+                    <th>岗位</th>
+                    <th style="width:100px">薪资</th>
+                    <th style="width:110px">入职时间</th>
+                    <th style="width:80px">状态</th>
+                    <th style="width:130px">操作</th>
+                </tr>
+                </thead>
+                <tbody id="tbody"></tbody>
+            </table>
+            <div class="pager">
+                <div id="pageInfo">共 0 条</div>
+                <div class="right">
+                    <label>每页
+                        <select id="pageSize">
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                        </select>
+                        条
+                    </label>
+                    <button id="prevBtn">上一页</button>
+                    <span id="pageNo">1 / 1</span>
+                    <button id="nextBtn">下一页</button>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- ==================== 新增 / 编辑弹窗 ==================== -->
+<div class="mask" id="editMask">
+    <form class="dialog" id="editForm">
+        <h2 id="editTitle">新增员工</h2>
+        <div class="grid2">
+            <div class="field">
+                <label>姓名 *</label>
+                <input id="fEmpName" maxlength="50" placeholder="不超过 50 个字符">
+            </div>
+            <div class="field">
+                <label>性别 *</label>
+                <select id="fGender">
+                    <option value="男">男</option>
+                    <option value="女">女</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>部门 *</label>
+                <select id="fDept"></select>
+            </div>
+            <div class="field">
+                <label>岗位</label>
+                <input id="fPost" maxlength="50" placeholder="如 Java工程师">
+            </div>
+            <div class="field">
+                <label>薪资 *</label>
+                <input id="fSalary" type="number" step="0.01" min="0" placeholder="0.00">
+            </div>
+            <div class="field">
+                <label>入职时间</label>
+                <input id="fHireDate" type="date">
+            </div>
+            <div class="field">
+                <label>状态</label>
+                <select id="fStatus">
+                    <option value="1">在职</option>
+                    <option value="0">离职</option>
+                </select>
+            </div>
+        </div>
+        <div class="err" id="editErr"></div>
+        <div class="foot">
+            <button type="button" id="cancelBtn">取消</button>
+            <button type="submit" class="primary" id="saveBtn">保存</button>
+        </div>
+    </form>
+</div>
+
+<div id="toast"></div>
+
+<script>
+    /* ============================ 全局状态 ============================ */
+    const state = {
+        page: 1,
+        size: 5,
+        total: 0,
+        pages: 1,
+        name: '',
+        gender: '',
+        deptId: '',
+        status: '',
+        editingId: null,
+        depts: []
+    };
+
+    const $ = (id) => document.getElementById(id);
+
+    function toast(message, isError) {
+        const box = $('toast');
+        box.textContent = message;
+        box.className = 'show' + (isError ? ' error' : '');
+        clearTimeout(box._timer);
+        box._timer = setTimeout(() => { box.className = ''; }, 2400);
+    }
+
+    /* ============================ 请求封装 ============================ */
+    async function api(url, options) {
+        const opts = Object.assign({credentials: 'same-origin', headers: {}}, options || {});
+        if (opts.body && typeof opts.body !== 'string') {
+            opts.headers['Content-Type'] = 'application/json';
+            opts.body = JSON.stringify(opts.body);
+        }
+        const resp = await fetch(url, opts);
+        let payload = null;
+        try {
+            payload = await resp.json();
+        } catch (e) {
+            payload = {code: resp.status, message: '响应不是合法 JSON'};
+        }
+        if (resp.status === 401) {
+            showLogin();
+            throw new Error(payload.message || '未登录');
+        }
+        if (!resp.ok || (payload && payload.code !== 200)) {
+            throw new Error((payload && payload.message) || ('请求失败：' + resp.status));
+        }
+        return payload.data;
+    }
+
+    /* ============================ 视图切换 ============================ */
+    function showLogin() {
+        $('appView').style.display = 'none';
+        $('loginView').style.display = 'flex';
+    }
+
+    async function showApp(user) {
+        $('loginView').style.display = 'none';
+        $('appView').style.display = 'block';
+        $('whoami').textContent = (user.realName || user.username) + '（' + (user.role || 'USER') + '）';
+        await loadDepts();
+        await loadList();
+    }
+
+    /* ============================ 部门下拉 ============================ */
+    async function loadDepts() {
+        state.depts = await api('/emp-mis/depts');
+        const filter = $('qDept');
+        const form = $('fDept');
+        filter.innerHTML = '<option value="">全部部门</option>';
+        form.innerHTML = '';
+        state.depts.forEach((d) => {
+            filter.insertAdjacentHTML('beforeend',
+                `<option value="${d.deptId}">${d.deptName}</option>`);
+            form.insertAdjacentHTML('beforeend',
+                `<option value="${d.deptId}">${d.deptName}</option>`);
+        });
+    }
+
+    /* ============================ 列表查询 ============================ */
+    async function loadList() {
+        const params = new URLSearchParams();
+        params.set('page', state.page);
+        params.set('size', state.size);
+        if (state.name) params.set('name', state.name);
+        if (state.gender) params.set('gender', state.gender);
+        if (state.deptId) params.set('deptId', state.deptId);
+        if (state.status !== '') params.set('status', state.status);
+
+        const data = await api('/emp-mis/emps?' + params.toString());
+        state.total = data.total;
+        state.pages = Math.max(data.pages, 1);
+        renderRows(data.records);
+        $('pageInfo').textContent = `共 ${data.total} 条记录，第 ${data.page} / ${Math.max(data.pages, 1)} 页`;
+        $('pageNo').textContent = `${data.page} / ${Math.max(data.pages, 1)}`;
+        $('prevBtn').disabled = data.page <= 1;
+        $('nextBtn').disabled = data.page >= data.pages;
+        $('checkAll').checked = false;
+    }
+
+    function renderRows(rows) {
+        const tbody = $('tbody');
+        if (!rows || rows.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="10" class="empty">没有符合条件的数据</td></tr>';
+            return;
+        }
+        tbody.innerHTML = rows.map((r) => `
+            <tr>
+                <td><input type="checkbox" class="row-check" value="${r.empId}"></td>
+                <td class="num">${r.empId}</td>
+                <td>${escapeHtml(r.empName)}</td>
+                <td>${escapeHtml(r.gender)}</td>
+                <td>${escapeHtml(r.deptName || '-')}</td>
+                <td>${escapeHtml(r.post || '-')}</td>
+                <td class="num">${r.salary == null ? '-' : Number(r.salary).toFixed(2)}</td>
+                <td>${r.hireDate || '-'}</td>
+                <td><span class="badge ${r.status === 1 ? 'on' : 'off'}">${r.status === 1 ? '在职' : '离职'}</span></td>
+                <td class="actions">
+                    <button data-edit="${r.empId}">编辑</button>
+                    <button class="danger" data-del="${r.empId}">删除</button>
+                </td>
+            </tr>`).join('');
+    }
+
+    function escapeHtml(text) {
+        if (text == null) return '';
+        return String(text).replace(/[&<>"']/g, (c) => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[c]));
+    }
+
+    /* ============================ 登录 / 退出 ============================ */
+    $('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        $('loginErr').textContent = '';
+        const btn = $('loginBtn');
+        btn.disabled = true;
+        try {
+            const user = await api('/emp-mis/login', {
+                method: 'POST',
+                body: {username: $('username').value.trim(), password: $('password').value}
+            });
+            await showApp(user);
+        } catch (err) {
+            $('loginErr').textContent = err.message;
+        } finally {
+            btn.disabled = false;
+        }
+    });
+
+    $('logoutBtn').addEventListener('click', async () => {
+        try {
+            await api('/emp-mis/logout', {method: 'POST'});
+        } catch (e) {
+            /* 忽略：会话可能已过期 */
+        }
+        showLogin();
+    });
+
+    /* ============================ 查询 / 重置 / 分页 ============================ */
+    $('searchBtn').addEventListener('click', () => {
+        state.name = $('qName').value.trim();
+        state.gender = $('qGender').value;
+        state.deptId = $('qDept').value;
+        state.status = $('qStatus').value;
+        state.page = 1;
+        loadList().catch((e) => toast(e.message, true));
+    });
+
+    $('resetBtn').addEventListener('click', () => {
+        $('qName').value = '';
+        $('qGender').value = '';
+        $('qDept').value = '';
+        $('qStatus').value = '';
+        state.name = '';
+        state.gender = '';
+        state.deptId = '';
+        state.status = '';
+        state.page = 1;
+        loadList().catch((e) => toast(e.message, true));
+    });
+
+    $('pageSize').addEventListener('change', (e) => {
+        state.size = Number(e.target.value);
+        state.page = 1;
+        loadList().catch((err) => toast(err.message, true));
+    });
+
+    $('prevBtn').addEventListener('click', () => {
+        if (state.page > 1) {
+            state.page -= 1;
+            loadList().catch((e) => toast(e.message, true));
+        }
+    });
+
+    $('nextBtn').addEventListener('click', () => {
+        if (state.page < state.pages) {
+            state.page += 1;
+            loadList().catch((e) => toast(e.message, true));
+        }
+    });
+
+    $('checkAll').addEventListener('change', (e) => {
+        document.querySelectorAll('.row-check').forEach((c) => { c.checked = e.target.checked; });
+    });
+
+    /* ============================ 新增 / 编辑 ============================ */
+    function openEdit(row) {
+        state.editingId = row ? row.empId : null;
+        $('editTitle').textContent = row ? '编辑员工' : '新增员工';
+        $('editErr').textContent = '';
+        $('fEmpName').value = row ? row.empName : '';
+        $('fGender').value = row ? row.gender : '男';
+        $('fDept').value = row ? row.deptId : (state.depts[0] ? state.depts[0].deptId : '');
+        $('fPost').value = row ? (row.post || '') : '';
+        $('fSalary').value = row ? row.salary : '';
+        $('fHireDate').value = row ? (row.hireDate || '') : new Date().toISOString().slice(0, 10);
+        $('fStatus').value = row ? String(row.status) : '1';
+        $('editMask').classList.add('show');
+    }
+
+    function closeEdit() {
+        $('editMask').classList.remove('show');
+        state.editingId = null;
+    }
+
+    $('addBtn').addEventListener('click', () => openEdit(null));
+    $('cancelBtn').addEventListener('click', closeEdit);
+
+    $('editForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        $('editErr').textContent = '';
+        const body = {
+            empName: $('fEmpName').value.trim(),
+            gender: $('fGender').value,
+            deptId: Number($('fDept').value),
+            post: $('fPost').value.trim(),
+            salary: $('fSalary').value === '' ? null : Number($('fSalary').value),
+            hireDate: $('fHireDate').value || null,
+            status: Number($('fStatus').value)
+        };
+        const btn = $('saveBtn');
+        btn.disabled = true;
+        try {
+            if (state.editingId) {
+                body.empId = state.editingId;
+                await api('/emp-mis/emps', {method: 'PUT', body: body});
+                toast('修改成功');
+            } else {
+                await api('/emp-mis/emps', {method: 'POST', body: body});
+                toast('新增成功');
+            }
+            closeEdit();
+            await loadList();
+        } catch (err) {
+            $('editErr').textContent = err.message;
+        } finally {
+            btn.disabled = false;
+        }
+    });
+
+    /* ============================ 删除 ============================ */
+    $('tbody').addEventListener('click', async (e) => {
+        const editId = e.target.getAttribute('data-edit');
+        const delId = e.target.getAttribute('data-del');
+        if (editId) {
+            const data = await api('/emp-mis/emps/' + editId).catch((err) => toast(err.message, true));
+            if (data) openEdit(data);
+        }
+        if (delId) {
+            if (!confirm('确认删除编号 ' + delId + ' 的员工？')) return;
+            try {
+                await api('/emp-mis/emps/' + delId, {method: 'DELETE'});
+                toast('删除成功');
+                if (state.page > 1 && state.total % state.size === 1) state.page -= 1;
+                await loadList();
+            } catch (err) {
+                toast(err.message, true);
+            }
+        }
+    });
+
+    $('batchDelBtn').addEventListener('click', async () => {
+        const ids = Array.from(document.querySelectorAll('.row-check:checked'))
+            .map((c) => Number(c.value));
+        if (ids.length === 0) {
+            toast('请先勾选要删除的记录', true);
+            return;
+        }
+        if (!confirm('确认删除选中的 ' + ids.length + ' 条记录？')) return;
+        try {
+            const rows = await api('/emp-mis/emps', {method: 'DELETE', body: ids});
+            toast('已删除 ' + rows + ' 条记录');
+            state.page = 1;
+            await loadList();
+        } catch (err) {
+            toast(err.message, true);
+        }
+    });
+
+    /* ============================ 启动：探测登录态 ============================ */
+    (async function bootstrap() {
+        try {
+            const user = await api('/emp-mis/me');
+            await showApp(user);
+        } catch (e) {
+            showLogin();
+        }
+    })();
+</script>
+</body>
+</html>
