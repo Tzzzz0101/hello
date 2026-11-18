@@ -429,6 +429,15 @@
         box._timer = setTimeout(() => { box.className = ''; }, 2400);
     }
 
+    /* 部署上下文自动识别：部署为 /、/emp-mis/、/sy2ds_war_exploded/ 都能正常调用接口 */
+    const API_BASE = (function () {
+        const first = (location.pathname.split('/').filter(Boolean)[0] || '');
+        if (!first || first.indexOf('.') >= 0) {
+            return '';   // 部署在 ROOT，或直接用 file:// 打开页面
+        }
+        return '/' + first;
+    })();
+
     /* ============================ 请求封装 ============================ */
     async function api(url, options) {
         const opts = Object.assign({credentials: 'same-origin', headers: {}}, options || {});
@@ -469,7 +478,7 @@
 
     /* ============================ 部门下拉 ============================ */
     async function loadDepts() {
-        state.depts = await api('/emp-mis/depts');
+        state.depts = await api(API_BASE + '/depts');
         const filter = $('qDept');
         const form = $('fDept');
         filter.innerHTML = '<option value="">全部部门</option>';
@@ -492,7 +501,7 @@
         if (state.deptId) params.set('deptId', state.deptId);
         if (state.status !== '') params.set('status', state.status);
 
-        const data = await api('/emp-mis/emps?' + params.toString());
+        const data = await api(API_BASE + '/emps?' + params.toString());
         state.total = data.total;
         state.pages = Math.max(data.pages, 1);
         renderRows(data.records);
@@ -541,7 +550,7 @@
         const btn = $('loginBtn');
         btn.disabled = true;
         try {
-            const user = await api('/emp-mis/login', {
+            const user = await api(API_BASE + '/login', {
                 method: 'POST',
                 body: {username: $('username').value.trim(), password: $('password').value}
             });
@@ -555,7 +564,7 @@
 
     $('logoutBtn').addEventListener('click', async () => {
         try {
-            await api('/emp-mis/logout', {method: 'POST'});
+            await api(API_BASE + '/logout', {method: 'POST'});
         } catch (e) {
             /* 忽略：会话可能已过期 */
         }
@@ -649,10 +658,10 @@
         try {
             if (state.editingId) {
                 body.empId = state.editingId;
-                await api('/emp-mis/emps', {method: 'PUT', body: body});
+                await api(API_BASE + '/emps', {method: 'PUT', body: body});
                 toast('修改成功');
             } else {
-                await api('/emp-mis/emps', {method: 'POST', body: body});
+                await api(API_BASE + '/emps', {method: 'POST', body: body});
                 toast('新增成功');
             }
             closeEdit();
@@ -669,13 +678,13 @@
         const editId = e.target.getAttribute('data-edit');
         const delId = e.target.getAttribute('data-del');
         if (editId) {
-            const data = await api('/emp-mis/emps/' + editId).catch((err) => toast(err.message, true));
+            const data = await api(API_BASE + '/emps/' + editId).catch((err) => toast(err.message, true));
             if (data) openEdit(data);
         }
         if (delId) {
             if (!confirm('确认删除编号 ' + delId + ' 的员工？')) return;
             try {
-                await api('/emp-mis/emps/' + delId, {method: 'DELETE'});
+                await api(API_BASE + '/emps/' + delId, {method: 'DELETE'});
                 toast('删除成功');
                 if (state.page > 1 && state.total % state.size === 1) state.page -= 1;
                 await loadList();
@@ -694,7 +703,7 @@
         }
         if (!confirm('确认删除选中的 ' + ids.length + ' 条记录？')) return;
         try {
-            const rows = await api('/emp-mis/emps', {method: 'DELETE', body: ids});
+            const rows = await api(API_BASE + '/emps', {method: 'DELETE', body: ids});
             toast('已删除 ' + rows + ' 条记录');
             state.page = 1;
             await loadList();
@@ -706,7 +715,7 @@
     /* ============================ 启动：探测登录态 ============================ */
     (async function bootstrap() {
         try {
-            const user = await api('/emp-mis/me');
+            const user = await api(API_BASE + '/me');
             await showApp(user);
         } catch (e) {
             showLogin();
