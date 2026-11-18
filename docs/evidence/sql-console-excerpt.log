@@ -1,0 +1,30 @@
+﻿2026-11-17 13:06:10.461 [http-nio-8080-exec-8] DEBUG c.l.e.m.SysUserMapper.selectList - <==      Total: 1
+2026-11-17 13:06:10.462 [http-nio-8080-exec-8] INFO  com.lab.emp.aspect.WebLogAspect - [WebLog] POST /emp-mis/login AuthController.login -> OK 参数=[LoginDTO{username='admin'}, org.apache.catalina.session.StandardSessionFacade@31ad897] 耗时=4ms 结果=com.lab.emp.common.Result@6830d5fb
+2026-11-17 13:06:10.468 [http-nio-8080-exec-1] DEBUG c.l.emp.mapper.DeptMapper.selectList - ==>  Preparing: SELECT dept_id,dept_name,location,create_time FROM dept ORDER BY dept_id ASC
+2026-11-17 13:06:10.468 [http-nio-8080-exec-1] DEBUG c.l.emp.mapper.DeptMapper.selectList - ==> Parameters: 
+2026-11-17 13:06:10.469 [http-nio-8080-exec-1] DEBUG c.l.emp.mapper.DeptMapper.selectList - <==      Total: 4
+2026-11-17 13:06:10.470 [http-nio-8080-exec-1] INFO  com.lab.emp.aspect.WebLogAspect - [WebLog] GET /emp-mis/depts DeptController.list -> OK 参数=[] 耗时=3ms 结果=com.lab.emp.common.Result@1ece0853
+2026-11-17 13:06:10.475 [http-nio-8080-exec-2] DEBUG c.l.e.m.EmpMapper.selectPage_mpCount - ==>  Preparing: SELECT COUNT(*) AS total FROM emp WHERE deleted = 0
+2026-11-17 13:06:10.475 [http-nio-8080-exec-2] DEBUG c.l.e.m.EmpMapper.selectPage_mpCount - ==> Parameters: 
+2026-11-17 13:06:10.477 [http-nio-8080-exec-2] DEBUG c.l.e.m.EmpMapper.selectPage_mpCount - <==      Total: 1
+2026-11-17 13:06:10.478 [http-nio-8080-exec-2] DEBUG c.l.emp.mapper.EmpMapper.selectPage - ==>  Preparing: SELECT emp_id,emp_name,gender,dept_id,post,salary,hire_date,status,create_time,update_time,deleted FROM emp WHERE deleted=0 ORDER BY emp_id DESC LIMIT ?
+2026-11-17 13:06:10.478 [http-nio-8080-exec-2] DEBUG c.l.emp.mapper.EmpMapper.selectPage - ==> Parameters: 5(Long)
+2026-11-17 13:06:10.480 [http-nio-8080-exec-2] DEBUG c.l.emp.mapper.EmpMapper.selectPage - <==      Total: 4
+2026-11-17 13:06:10.480 [http-nio-8080-exec-2] DEBUG c.l.e.m.DeptMapper.selectBatchIds - ==>  Preparing: SELECT dept_id,dept_name,location,create_time FROM dept WHERE dept_id IN ( ? , ? , ? )
+2026-11-17 13:06:10.482 [http-nio-8080-exec-2] DEBUG c.l.e.m.DeptMapper.selectBatchIds - ==> Parameters: 3(Integer), 2(Integer), 1(Integer)
+2026-11-17 13:06:10.484 [http-nio-8080-exec-2] DEBUG c.l.e.m.DeptMapper.selectBatchIds - <==      Total: 3
+2026-11-17 13:06:10.484 [http-nio-8080-exec-2] INFO  com.lab.emp.aspect.WebLogAspect - [WebLog] GET /emp-mis/emps EmpController.list -> OK 参数=[EmpQueryDTO{name='null', gender='null', deptId=null, status=null, page=1, size=5}] 耗时=11ms 结果=com.lab.emp.common.Result@77839a58
+2026-11-17 13:06:13.577 [http-nio-8080-exec-3] DEBUG c.l.e.m.EmpMapper.selectPage_mpCount - ==>  Preparing: SELECT COUNT(*) AS total FROM emp WHERE deleted = 0 AND (emp_name LIKE ?)
+2026-11-17 13:06:13.578 [http-nio-8080-exec-3] DEBUG c.l.e.m.EmpMapper.selectPage_mpCount - ==> Parameters: %张%(String)
+2026-11-17 13:06:13.579 [http-nio-8080-exec-3] DEBUG c.l.e.m.EmpMapper.selectPage_mpCount - <==      Total: 1
+2026-11-17 13:06:13.580 [http-nio-8080-exec-3] DEBUG c.l.emp.mapper.EmpMapper.selectPage - ==>  Preparing: SELECT emp_id,emp_name,gender,dept_id,post,salary,hire_date,status,create_time,update_time,deleted FROM emp WHERE deleted=0 AND (emp_name LIKE ?) ORDER BY emp_id DESC LIMIT ?
+2026-11-17 13:06:13.581 [http-nio-8080-exec-3] DEBUG c.l.emp.mapper.EmpMapper.selectPage - ==> Parameters: %张%(String), 5(Long)
+2026-11-17 13:06:13.582 [http-nio-8080-exec-3] DEBUG c.l.emp.mapper.EmpMapper.selectPage - <==      Total: 1
+2026-11-17 13:06:13.583 [http-nio-8080-exec-3] DEBUG c.l.e.m.DeptMapper.selectBatchIds - ==>  Preparing: SELECT dept_id,dept_name,location,create_time FROM dept WHERE dept_id IN ( ? )
+2026-11-17 13:06:13.583 [http-nio-8080-exec-3] DEBUG c.l.e.m.DeptMapper.selectBatchIds - ==> Parameters: 1(Integer)
+2026-11-17 13:06:13.585 [http-nio-8080-exec-3] DEBUG c.l.e.m.DeptMapper.selectBatchIds - <==      Total: 1
+2026-11-17 13:06:13.585 [http-nio-8080-exec-3] INFO  com.lab.emp.aspect.WebLogAspect - [WebLog] GET /emp-mis/emps EmpController.list -> OK 参数=[EmpQueryDTO{name='张', gender='null', deptId=null, status=null, page=1, size=5}] 耗时=10ms 结果=com.lab.emp.common.Result@2c8f481c
+2026-11-17 13:06:15.688 [http-nio-8080-exec-4] DEBUG c.l.e.m.EmpMapper.selectPage_mpCount - ==>  Preparing: SELECT COUNT(*) AS total FROM emp WHERE deleted = 0
+2026-11-17 13:06:15.707 [http-nio-8080-exec-4] DEBUG c.l.e.m.EmpMapper.selectPage_mpCount - ==> Parameters: 
+2026-11-17 13:06:15.708 [http-nio-8080-exec-4] DEBUG c.l.e.m.EmpMapper.selectPage_mpCount - <==      Total: 1
+2026-11-17 13:06:15.709 [http-nio-8080-exec-4] DEBUG c.l.emp.mapper.EmpMapper.selectPage - ==>  Preparing: SELECT emp_id,emp_name,gender,dept_id,post,salary,hire_date,status,create_time,update_time,deleted FROM emp WHERE deleted=0 ORDER BY emp_id DESC LIMIT ?

@@ -1,0 +1,11 @@
+﻿[INFO] Building emp-mis 1.0.0
+[INFO]  T E S T S
+[INFO] Running com.lab.emp.EmpServiceTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.221 s -- in com.lab.emp.EmpServiceTest
+[INFO] Running com.lab.emp.PasswordUtilTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.lab.emp.PasswordUtilTest
+[INFO] Running com.lab.emp.TransactionDemoTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.033 s -- in com.lab.emp.TransactionDemoTest
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+[INFO] Total time:  2.391 s

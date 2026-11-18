@@ -1,0 +1,46 @@
+﻿[PASS] 未登录访问文章列表 401 | 401
+[PASS] admin 登录且权限 16 条 | 200 权限=16
+[PASS] 控制台统计 | 200 {"code":200,"message":"操作成功","data":{"totalArticles":4,"published":2,"pending":1
+[PASS] 分类树 6 节点 / 3 个一级 | 200 节点=6
+[PASS] 文章分页 total=4 | 200
+[PASS] 标题模糊 + 状态过滤 | 200
+[PASS] 分页越界返回空页 | 200
+[PASS] editor 登录 | 200
+[PASS] editor 越权审核 403 | 403 {"code":403,"message":"没有操作权限：article:audit","data":null,"success":false}
+[PASS] 新增文章为 DRAFT | 200 id=9
+[PASS] 提交审核 -> PENDING | 200
+[PASS] 驳回未填意见 400 | 400 {"code":400,"message":"驳回时必须填写审核意见","data":null,"success":false}
+[PASS] 驳回 -> REJECTED | 200
+[PASS] 驳回后可编辑 | 200
+[PASS] 审核通过 -> PUBLISHED | 200
+[PASS] 详情阅读量自增 | v1=2 v2=3
+[PASS] 下架 -> OFFLINE | 200
+[PASS] 已下架不能提交审核 400 | 400
+[PASS] 非法状态过滤 400 | 400 {"code":400,"message":"状态取值非法：BOGUS，可选 DRAFT/PENDING/PUBLISHED/REJECTED/OFFLINE","data":null,"success":false}
+[PASS] 批量发布 2 篇 | 200 {"code":200,"message":"发布成功","data":2,"success":true}
+[PASS] 批量发布空数组 400 | 400 {"code":400,"message":"请选择要发布的文章","data":null,"success":false}
+[PASS] 新增一级分类 parentId 为 null | 200 id=11
+[PASS] 分类编码重复 400 | 400
+[PASS] 新增子分类 | 200 id=12
+[PASS] 含子分类不可删除 400 | 400
+[PASS] 父子成环 400 | 400
+[PASS] 删除子分类 | 200 {"code":200,"message":"已删除","data":null,"success":true}
+[PASS] 删除空分类 | 200 {"code":200,"message":"已删除","data":null,"success":true}
+[PASS] 用户分页 3 人 + 角色回填 | 200
+[PASS] 角色列表 3 个 | 200
+[PASS] 权限树含菜单与按钮 | 200
+[PASS] 新增用户并分配 EDITOR | 200 id=6
+[PASS] 重复登录名 400 | 400 {"code":400,"message":"登录名已存在：tester231133","data":null,"success":false}
+[PASS] 新用户可登录 | 200
+[PASS] EDITOR 无日志权限 403 | 403
+[PASS] 调整角色为 AUDITOR | 200
+[PASS] 重新登录后角色为 AUDITOR | 200
+[PASS] AUDITOR 可查日志 | 200
+[PASS] AUDITOR 无用户权限 403 | 403
+[PASS] 操作日志已落库 | 200 total=71
+[PASS] 日志按模块过滤 | 200
+[PASS] 退出登录 | 200
+[PASS] 退出后 /me 401 | 401
+[PASS] 删除后可再建（详情 404） | 404
+
+TOTAL=44 PASS=44 FAIL=0

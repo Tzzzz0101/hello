@@ -22,5 +22,8 @@ logs/
 .DS_Store
 Thumbs.db
 
+# ---- 报告证据（刻意纳入版本库，供评阅核对） ----
+!docs/evidence/*.log
+
 # ---- 保留 Maven Wrapper ----
 !.mvn/wrapper/maven-wrapper.jar
