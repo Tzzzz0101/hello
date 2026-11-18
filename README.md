@@ -188,7 +188,8 @@ curl -b c.txt -X POST "http://localhost:8080/emp-mis/emps/tx-demo?scenario=rollb
 | `docs/cms-api.md` | CMS 接口清单与示例 |
 | `docs/screenshots/cms-*.png` | 架构图、ER 图、流程图与界面截图 |
 | `docs/《JAVA框架技术(一)》实验二实验报告.docx` | 实验二报告（六部分 + 附录） |
-| `docs/《JAVA框架技术(一)》实验二实验报告（教务处模板）.docx` | 按教务处模板排版的实验二报告 |
+| `docs/《JAVA框架技术(一)》实验二实验报告（指导书模板）.docx` | 按指导书附录 B 结构排版的实验二报告（一 实验环境 / 二 实验目标 / 三 过程 / 四 AI 记录 / 五 问题 / 六 总结） |
+| `docs/《JAVA框架技术(一)》实验二实验报告（教务处模板）.docx` | 按教务处表格模板排版的实验二报告 |
 | `docs/api.md` / `docs/apifox-cases.md` / `docs/standards.md` | 实验二接口清单、用例与开发规范清单 |
 | `sql/cms_init.sql` | CMS 建表与种子数据（可一条命令重建环境） |
 

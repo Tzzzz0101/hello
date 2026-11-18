@@ -27,3 +27,5 @@ Thumbs.db
 
 # ---- 保留 Maven Wrapper ----
 !.mvn/wrapper/maven-wrapper.jar
+# Word 临时锁文件
+~$*
