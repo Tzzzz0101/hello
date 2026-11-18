@@ -1,726 +1,880 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EMP 员工管理 MIS 系统</title>
-    <style>
-        :root {
-            --ink: #1f2937;
-            --muted: #6b7280;
-            --line: #e5e7eb;
-            --bg: #f5f6f8;
-            --brand: #2f5d8a;
-            --brand-dark: #24486b;
-            --danger: #b3261e;
-            --ok: #1f7a4d;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CMS 内容管理系统</title>
+<style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 14px/1.6 "Microsoft YaHei", "PingFang SC", Arial, sans-serif; color: #1f2937; background: #f5f6f8; }
+    a { color: #2f5d8a; text-decoration: none; }
+    button { font: inherit; cursor: pointer; border: 1px solid #d5d9e0; background: #fff; color: #1f2937; border-radius: 6px; padding: 6px 12px; }
+    button:hover { border-color: #2f5d8a; color: #2f5d8a; }
+    button.primary { background: #2f5d8a; border-color: #2f5d8a; color: #fff; }
+    button.primary:hover { background: #26496d; }
+    button.danger { color: #b42318; border-color: #f0c7c2; }
+    button.mini { padding: 2px 8px; font-size: 12px; }
+    input, select, textarea { font: inherit; border: 1px solid #d5d9e0; border-radius: 6px; padding: 6px 10px; background: #fff; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: #2f5d8a; }
+    textarea { resize: vertical; }
 
-        * { box-sizing: border-box; }
+    #loginView { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #eef2f7, #dbe4ee); }
+    .login-card { width: 370px; background: #fff; border-radius: 12px; padding: 32px; box-shadow: 0 12px 40px rgba(31, 41, 55, .12); }
+    .login-card h1 { margin: 0 0 6px; font-size: 20px; color: #2f5d8a; }
+    .login-card p.sub { margin: 0 0 22px; color: #6b7280; font-size: 12px; }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; margin-bottom: 6px; font-size: 12px; color: #4b5563; }
+    .field input, .field select, .field textarea { width: 100%; }
+    .err { color: #b42318; font-size: 12px; min-height: 18px; }
 
-        body {
-            margin: 0;
-            font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", sans-serif;
-            color: var(--ink);
-            background: var(--bg);
-            font-size: 14px;
-        }
+    #appView { display: none; min-height: 100vh; }
+    .layout { display: flex; min-height: 100vh; }
+    .sidebar { width: 208px; background: #1f2937; color: #cbd5e1; padding: 18px 0; flex: none; }
+    .sidebar .brand { padding: 0 18px 16px; font-size: 16px; color: #fff; font-weight: 600; }
+    .sidebar .brand small { display: block; font-size: 11px; color: #94a3b8; font-weight: 400; margin-top: 2px; }
+    .nav-item { display: block; padding: 10px 18px; color: #cbd5e1; cursor: pointer; border-left: 3px solid transparent; }
+    .nav-item:hover { background: #273244; color: #fff; }
+    .nav-item.active { background: #273244; color: #fff; border-left-color: #6aa6d8; }
+    .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    .topbar { height: 54px; background: #fff; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
+    .topbar .who { color: #4b5563; font-size: 13px; }
+    .topbar .who b { color: #1f2937; }
+    .content { padding: 20px; }
+    .panel { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+    .panel h2 { margin: 0 0 14px; font-size: 15px; }
+    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+    .toolbar .spacer { flex: 1; }
 
-        button {
-            font-family: inherit;
-            font-size: 14px;
-            cursor: pointer;
-            border: 1px solid var(--line);
-            background: #fff;
-            color: var(--ink);
-            padding: 7px 14px;
-            border-radius: 4px;
-        }
+    .cards { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 14px 16px; }
+    .card .num { font-size: 24px; font-weight: 600; color: #2f5d8a; }
+    .card .lbl { font-size: 12px; color: #6b7280; margin-top: 2px; }
 
-        button:hover { border-color: #c8ccd4; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 9px 10px; border-bottom: 1px solid #eef0f3; text-align: left; font-size: 13px; vertical-align: middle; }
+    th { background: #f8f9fb; color: #4b5563; font-weight: 600; white-space: nowrap; }
+    tr:hover td { background: #fafbfd; }
+    td.ops { white-space: nowrap; }
+    td.ops button { margin-right: 4px; }
+    .badge { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 12px; border: 1px solid; }
+    .st-DRAFT { color: #6b7280; border-color: #d1d5db; background: #f3f4f6; }
+    .st-PENDING { color: #b45309; border-color: #fcd34d; background: #fffbeb; }
+    .st-PUBLISHED { color: #047857; border-color: #6ee7b7; background: #ecfdf5; }
+    .st-REJECTED { color: #b42318; border-color: #fca5a5; background: #fef2f2; }
+    .st-OFFLINE { color: #4b5563; border-color: #cbd5e1; background: #f1f5f9; }
+    .empty { text-align: center; color: #9ca3af; padding: 26px 0; }
 
-        button.primary {
-            background: var(--brand);
-            border-color: var(--brand);
-            color: #fff;
-        }
+    .pager { display: flex; align-items: center; gap: 8px; justify-content: flex-end; margin-top: 12px; font-size: 13px; color: #4b5563; }
+    .pager select { padding: 3px 6px; }
 
-        button.primary:hover { background: var(--brand-dark); }
+    .mask { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, .45); align-items: center; justify-content: center; z-index: 20; }
+    .mask.show { display: flex; }
+    .dialog { width: 640px; max-width: 94vw; max-height: 90vh; overflow: auto; background: #fff; border-radius: 12px; padding: 20px; }
+    .dialog h3 { margin: 0 0 16px; font-size: 16px; }
+    .dialog .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .dialog .actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+    .tree-indent { display: inline-block; }
 
-        button.danger { color: var(--danger); }
-
-        button:disabled { opacity: .5; cursor: not-allowed; }
-
-        input, select {
-            font-family: inherit;
-            font-size: 14px;
-            padding: 7px 9px;
-            border: 1px solid var(--line);
-            border-radius: 4px;
-            background: #fff;
-            color: var(--ink);
-        }
-
-        input:focus, select:focus { outline: 2px solid #cddff0; border-color: var(--brand); }
-
-        /* ---------- 登录 ---------- */
-        #loginView {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .login-card {
-            width: 360px;
-            background: #fff;
-            border: 1px solid var(--line);
-            border-radius: 8px;
-            padding: 30px 32px 26px;
-            box-shadow: 0 8px 24px rgba(31, 41, 55, .06);
-        }
-
-        .login-card h1 {
-            font-size: 19px;
-            margin: 0 0 4px;
-        }
-
-        .login-card p.sub {
-            margin: 0 0 22px;
-            color: var(--muted);
-            font-size: 12.5px;
-        }
-
-        .field { margin-bottom: 14px; }
-
-        .field label {
-            display: block;
-            font-size: 12.5px;
-            color: var(--muted);
-            margin-bottom: 5px;
-        }
-
-        .field input { width: 100%; }
-
-        .login-card button { width: 100%; margin-top: 6px; }
-
-        .hint {
-            margin-top: 14px;
-            font-size: 12px;
-            color: var(--muted);
-            line-height: 1.7;
-        }
-
-        /* ---------- 主界面 ---------- */
-        #appView { display: none; }
-
-        header.top {
-            background: #fff;
-            border-bottom: 1px solid var(--line);
-            padding: 0 26px;
-            height: 58px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .brand { display: flex; align-items: baseline; gap: 10px; }
-        .brand strong { font-size: 16px; letter-spacing: .5px; }
-        .brand span { color: var(--muted); font-size: 12px; }
-
-        .userbox { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 13px; }
-
-        main { padding: 20px 26px 34px; max-width: 1240px; margin: 0 auto; }
-
-        .toolbar {
-            background: #fff;
-            border: 1px solid var(--line);
-            border-radius: 6px;
-            padding: 14px 16px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            align-items: center;
-            margin-bottom: 14px;
-        }
-
-        .toolbar .grow { flex: 1; }
-
-        .panel {
-            background: #fff;
-            border: 1px solid var(--line);
-            border-radius: 6px;
-            overflow: hidden;
-        }
-
-        table { width: 100%; border-collapse: collapse; }
-
-        thead th {
-            text-align: left;
-            font-weight: 600;
-            font-size: 12.5px;
-            color: var(--muted);
-            background: #fafbfc;
-            padding: 10px 12px;
-            border-bottom: 1px solid var(--line);
-            white-space: nowrap;
-        }
-
-        tbody td {
-            padding: 10px 12px;
-            border-bottom: 1px solid #f1f2f4;
-            vertical-align: middle;
-        }
-
-        tbody tr:hover { background: #fbfcfd; }
-
-        td.num { font-variant-numeric: tabular-nums; }
-
-        .badge {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 12px;
-            border: 1px solid;
-        }
-
-        .badge.on { color: var(--ok); border-color: #b7dcc8; background: #f2faf5; }
-        .badge.off { color: var(--muted); border-color: var(--line); background: #f7f8fa; }
-
-        .actions { display: flex; gap: 6px; }
-        .actions button { padding: 4px 10px; font-size: 12.5px; }
-
-        .pager {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 14px;
-            color: var(--muted);
-            font-size: 13px;
-        }
-
-        .pager .right { display: flex; align-items: center; gap: 8px; }
-
-        .empty { padding: 42px; text-align: center; color: var(--muted); }
-
-        /* ---------- 弹窗 ---------- */
-        .mask {
-            position: fixed;
-            inset: 0;
-            background: rgba(17, 24, 39, .38);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 20;
-        }
-
-        .mask.show { display: flex; }
-
-        .dialog {
-            width: 480px;
-            background: #fff;
-            border-radius: 8px;
-            padding: 22px 24px;
-        }
-
-        .dialog h2 { font-size: 16px; margin: 0 0 18px; }
-
-        .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 14px; }
-
-        .grid2 .field { margin: 0; }
-
-        .grid2 input, .grid2 select { width: 100%; }
-
-        .dialog .foot { margin-top: 22px; display: flex; justify-content: flex-end; gap: 10px; }
-
-        .err { color: var(--danger); font-size: 12.5px; margin-top: 10px; min-height: 18px; }
-
-        /* ---------- 提示 ---------- */
-        #toast {
-            position: fixed;
-            top: 18px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #1f2937;
-            color: #fff;
-            padding: 9px 18px;
-            border-radius: 4px;
-            font-size: 13px;
-            opacity: 0;
-            transition: opacity .18s;
-            pointer-events: none;
-            z-index: 40;
-        }
-
-        #toast.show { opacity: .95; }
-        #toast.error { background: var(--danger); }
-    </style>
+    #toast { position: fixed; left: 50%; top: 22px; transform: translateX(-50%); background: #1f2937; color: #fff; padding: 9px 18px; border-radius: 8px; font-size: 13px; opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 30; }
+    #toast.show { opacity: .95; }
+</style>
 </head>
 <body>
 
-<!-- ==================== 登录 ==================== -->
+<!-- ============================ 登录 ============================ -->
 <div id="loginView">
     <form class="login-card" id="loginForm">
-        <h1>EMP 员工管理 MIS 系统</h1>
-        <p class="sub">SSM 整合实验 · 登录后进入员工管理</p>
-
+        <h1>CMS 内容管理系统</h1>
+        <p class="sub">实验账号：admin / editor / auditor，口令均为 123456（库中只存 SHA-256 摘要）</p>
         <div class="field">
-            <label for="username">用户名</label>
-            <input id="username" name="username" autocomplete="username" placeholder="请输入用户名" required>
+            <label for="username">登录名</label>
+            <input id="username" value="admin" autocomplete="username">
         </div>
         <div class="field">
             <label for="password">口令</label>
-            <input id="password" name="password" type="password" autocomplete="current-password"
-                   placeholder="请输入口令" required>
+            <input id="password" type="password" value="123456" autocomplete="current-password">
         </div>
-
-        <button class="primary" type="submit" id="loginBtn">登 录</button>
         <div class="err" id="loginErr"></div>
-        <div class="hint">实验账号：admin / 123456（口令以 SHA-256 摘要存储）</div>
+        <button class="primary" id="loginBtn" style="width:100%;padding:9px;">登 录</button>
     </form>
 </div>
 
-<!-- ==================== 主界面 ==================== -->
+<!-- ============================ 主界面 ============================ -->
 <div id="appView">
-    <header class="top">
-        <div class="brand">
-            <strong>EMP 员工管理</strong>
-            <span>Spring + SpringMVC + MyBatis-Plus</span>
-        </div>
-        <div class="userbox">
-            <span id="whoami"></span>
-            <button id="logoutBtn">退出登录</button>
-        </div>
-    </header>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="brand">CMS 管理后台<small>SSM · 企业级内容管理</small></div>
+            <a class="nav-item" data-page="dashboard">控制台</a>
+            <a class="nav-item" data-page="articles">文章管理</a>
+            <a class="nav-item" data-page="categories">分类管理</a>
+            <a class="nav-item" data-page="users">用户管理</a>
+            <a class="nav-item" data-page="logs">操作日志</a>
+            <a class="nav-item" href="employee.html" style="color:#94a3b8;">员工管理（实验二）</a>
+        </aside>
+        <div class="main">
+            <div class="topbar">
+                <div class="who"><b id="whoName"></b> <span id="whoRoles"></span></div>
+                <div><button class="mini" id="logoutBtn">退出登录</button></div>
+            </div>
+            <div class="content">
 
-    <main>
-        <div class="toolbar">
-            <input id="qName" placeholder="姓名（模糊）" style="width:150px">
-            <select id="qGender">
-                <option value="">全部性别</option>
-                <option value="男">男</option>
-                <option value="女">女</option>
-            </select>
-            <select id="qDept">
-                <option value="">全部部门</option>
-            </select>
-            <select id="qStatus">
-                <option value="">全部状态</option>
-                <option value="1">在职</option>
-                <option value="0">离职</option>
-            </select>
-            <button class="primary" id="searchBtn">查询</button>
-            <button id="resetBtn">重置</button>
-            <div class="grow"></div>
-            <button id="batchDelBtn" class="danger">批量删除</button>
-            <button class="primary" id="addBtn">+ 新增员工</button>
-        </div>
+                <section id="page-dashboard" class="page">
+                    <div class="cards">
+                        <div class="card"><div class="num" id="sTotal">0</div><div class="lbl">文章总数</div></div>
+                        <div class="card"><div class="num" id="sPublished">0</div><div class="lbl">已发布</div></div>
+                        <div class="card"><div class="num" id="sPending">0</div><div class="lbl">待审核</div></div>
+                        <div class="card"><div class="num" id="sDraft">0</div><div class="lbl">草稿</div></div>
+                        <div class="card"><div class="num" id="sViews">0</div><div class="lbl">总阅读量</div></div>
+                    </div>
+                    <div class="panel">
+                        <h2>各分类已发布文章数</h2>
+                        <table>
+                            <thead><tr><th>分类</th><th>已发布文章数</th></tr></thead>
+                            <tbody id="dashCats"></tbody>
+                        </table>
+                    </div>
+                </section>
 
-        <div class="panel">
-            <table>
-                <thead>
-                <tr>
-                    <th style="width:36px"><input type="checkbox" id="checkAll" title="全选"></th>
-                    <th style="width:64px">编号</th>
-                    <th>姓名</th>
-                    <th style="width:60px">性别</th>
-                    <th>部门</th>
-                    <th>岗位</th>
-                    <th style="width:100px">薪资</th>
-                    <th style="width:110px">入职时间</th>
-                    <th style="width:80px">状态</th>
-                    <th style="width:130px">操作</th>
-                </tr>
-                </thead>
-                <tbody id="tbody"></tbody>
-            </table>
-            <div class="pager">
-                <div id="pageInfo">共 0 条</div>
-                <div class="right">
-                    <label>每页
-                        <select id="pageSize">
-                            <option value="5">5</option>
-                            <option value="10">10</option>
-                            <option value="20">20</option>
-                        </select>
-                        条
-                    </label>
-                    <button id="prevBtn">上一页</button>
-                    <span id="pageNo">1 / 1</span>
-                    <button id="nextBtn">下一页</button>
-                </div>
+                <section id="page-articles" class="page" style="display:none;">
+                    <div class="panel">
+                        <div class="toolbar">
+                            <input id="qTitle" placeholder="标题关键字" style="width:180px;">
+                            <select id="qCategory"><option value="">全部分类</option></select>
+                            <select id="qStatus">
+                                <option value="">全部状态</option>
+                                <option value="DRAFT">草稿</option>
+                                <option value="PENDING">待审核</option>
+                                <option value="PUBLISHED">已发布</option>
+                                <option value="REJECTED">已驳回</option>
+                                <option value="OFFLINE">已下架</option>
+                            </select>
+                            <button id="qBtn">查询</button>
+                            <button id="qReset">重置</button>
+                            <span class="spacer"></span>
+                            <button id="batchPublishBtn">批量发布</button>
+                            <button class="primary" id="addArticleBtn">新增文章</button>
+                        </div>
+                        <table>
+                            <thead>
+                            <tr>
+                                <th style="width:34px;"><input type="checkbox" id="checkAll"></th>
+                                <th>标题</th><th>分类</th><th>作者</th><th>状态</th>
+                                <th>阅读</th><th>发布时间</th><th style="width:290px;">操作</th>
+                            </tr>
+                            </thead>
+                            <tbody id="articleBody"></tbody>
+                        </table>
+                        <div class="pager">
+                            <span id="articleTotal"></span>
+                            <button class="mini" id="prevBtn">上一页</button>
+                            <span id="pageInfo"></span>
+                            <button class="mini" id="nextBtn">下一页</button>
+                            <select id="pageSize">
+                                <option value="10">10 条/页</option>
+                                <option value="20">20 条/页</option>
+                                <option value="50">50 条/页</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="page-categories" class="page" style="display:none;">
+                    <div class="panel">
+                        <div class="toolbar">
+                            <button class="primary" id="addRootCategoryBtn">新增一级分类</button>
+                        </div>
+                        <table>
+                            <thead><tr><th>分类名称</th><th>编码</th><th>上级</th><th>排序</th><th>状态</th><th style="width:250px;">操作</th></tr></thead>
+                            <tbody id="categoryBody"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="page-users" class="page" style="display:none;">
+                    <div class="panel">
+                        <div class="toolbar">
+                            <input id="qUser" placeholder="登录名 / 姓名" style="width:180px;">
+                            <button id="qUserBtn">查询</button>
+                            <span class="spacer"></span>
+                            <button class="primary" id="addUserBtn">新增用户</button>
+                        </div>
+                        <table>
+                            <thead><tr><th>登录名</th><th>姓名</th><th>邮箱</th><th>手机</th><th>角色</th><th>状态</th><th>创建时间</th><th style="width:120px;">操作</th></tr></thead>
+                            <tbody id="userBody"></tbody>
+                        </table>
+                        <div class="pager"><span id="userTotal"></span><button class="mini" id="userPrev">上一页</button><span id="userPageInfo"></span><button class="mini" id="userNext">下一页</button></div>
+                    </div>
+                </section>
+
+                <section id="page-logs" class="page" style="display:none;">
+                    <div class="panel">
+                        <div class="toolbar">
+                            <input id="qLogModule" placeholder="模块，如 文章管理" style="width:170px;">
+                            <input id="qLogUser" placeholder="操作人" style="width:120px;">
+                            <input id="qLogKw" placeholder="动作 / 参数关键字" style="width:180px;">
+                            <button id="qLogBtn">查询</button>
+                        </div>
+                        <table>
+                            <thead><tr><th>时间</th><th>操作人</th><th>模块</th><th>动作</th><th>IP</th><th>耗时</th><th>结果</th><th>参数</th></tr></thead>
+                            <tbody id="logBody"></tbody>
+                        </table>
+                        <div class="pager"><span id="logTotal"></span><button class="mini" id="logPrev">上一页</button><span id="logPageInfo"></span><button class="mini" id="logNext">下一页</button></div>
+                    </div>
+                </section>
+
             </div>
         </div>
-    </main>
+    </div>
 </div>
 
-<!-- ==================== 新增 / 编辑弹窗 ==================== -->
-<div class="mask" id="editMask">
-    <form class="dialog" id="editForm">
-        <h2 id="editTitle">新增员工</h2>
+<!-- 文章编辑弹窗 -->
+<div class="mask" id="articleMask">
+    <div class="dialog">
+        <h3 id="articleTitle">新增文章</h3>
+        <div class="field"><label>标题</label><input id="aTitle" maxlength="120"></div>
         <div class="grid2">
-            <div class="field">
-                <label>姓名 *</label>
-                <input id="fEmpName" maxlength="50" placeholder="不超过 50 个字符">
-            </div>
-            <div class="field">
-                <label>性别 *</label>
-                <select id="fGender">
-                    <option value="男">男</option>
-                    <option value="女">女</option>
-                </select>
-            </div>
-            <div class="field">
-                <label>部门 *</label>
-                <select id="fDept"></select>
-            </div>
-            <div class="field">
-                <label>岗位</label>
-                <input id="fPost" maxlength="50" placeholder="如 Java工程师">
-            </div>
-            <div class="field">
-                <label>薪资 *</label>
-                <input id="fSalary" type="number" step="0.01" min="0" placeholder="0.00">
-            </div>
-            <div class="field">
-                <label>入职时间</label>
-                <input id="fHireDate" type="date">
-            </div>
-            <div class="field">
-                <label>状态</label>
-                <select id="fStatus">
-                    <option value="1">在职</option>
-                    <option value="0">离职</option>
-                </select>
-            </div>
+            <div class="field"><label>分类</label><select id="aCategory"></select></div>
+            <div class="field"><label>摘要（可选）</label><input id="aSummary" maxlength="255"></div>
         </div>
-        <div class="err" id="editErr"></div>
-        <div class="foot">
-            <button type="button" id="cancelBtn">取消</button>
-            <button type="submit" class="primary" id="saveBtn">保存</button>
+        <div class="field"><label>正文</label><textarea id="aContent" rows="10" placeholder="支持 HTML 片段，如 &lt;p&gt;…&lt;/p&gt;"></textarea></div>
+        <div class="actions">
+            <button id="articleCancel">取消</button>
+            <button id="articleSaveDraft">保存草稿</button>
+            <button class="primary" id="articleSaveSubmit">保存并提交审核</button>
         </div>
-    </form>
+    </div>
+</div>
+
+<!-- 分类编辑弹窗 -->
+<div class="mask" id="categoryMask">
+    <div class="dialog" style="width:480px;">
+        <h3 id="categoryTitle">新增分类</h3>
+        <div class="field"><label>上级分类</label><select id="cParent"></select></div>
+        <div class="field"><label>分类名称</label><input id="cName" maxlength="50"></div>
+        <div class="field"><label>分类编码（小写字母 / 数字 / 连字符）</label><input id="cCode" maxlength="50"></div>
+        <div class="grid2">
+            <div class="field"><label>排序号</label><input id="cSort" type="number" value="1" min="0"></div>
+            <div class="field"><label>状态</label><select id="cStatus"><option value="1">启用</option><option value="0">停用</option></select></div>
+        </div>
+        <div class="field"><label>描述</label><input id="cDesc" maxlength="200"></div>
+        <div class="actions"><button id="categoryCancel">取消</button><button class="primary" id="categorySave">保存</button></div>
+    </div>
+</div>
+
+<!-- 用户编辑弹窗 -->
+<div class="mask" id="userMask">
+    <div class="dialog" style="width:560px;">
+        <h3 id="userTitle">新增用户</h3>
+        <div class="grid2">
+            <div class="field"><label>登录名</label><input id="uUsername" maxlength="32"></div>
+            <div class="field"><label>姓名</label><input id="uRealName" maxlength="50"></div>
+        </div>
+        <div class="grid2">
+            <div class="field"><label>邮箱</label><input id="uEmail" maxlength="100"></div>
+            <div class="field"><label>手机号</label><input id="uPhone" maxlength="20"></div>
+        </div>
+        <div class="grid2">
+            <div class="field"><label>口令（编辑时留空表示不改）</label><input id="uPassword" type="password" maxlength="32"></div>
+            <div class="field"><label>状态</label><select id="uStatus"><option value="1">启用</option><option value="0">禁用</option></select></div>
+        </div>
+        <div class="field"><label>角色</label><div id="uRoles" style="display:flex;gap:16px;flex-wrap:wrap;"></div></div>
+        <div class="actions"><button id="userCancel">取消</button><button class="primary" id="userSave">保存</button></div>
+    </div>
 </div>
 
 <div id="toast"></div>
 
 <script>
-    /* ============================ 全局状态 ============================ */
-    const state = {
-        page: 1,
-        size: 5,
-        total: 0,
-        pages: 1,
-        name: '',
-        gender: '',
-        deptId: '',
-        status: '',
-        editingId: null,
-        depts: []
+/* ============================================================
+ * 接口基址：兼容 ROOT、/emp-mis、IDEA 的 /xxx_war_exploded 部署
+ * ============================================================ */
+const API_BASE = (function () {
+    const first = (location.pathname.split('/').filter(Boolean)[0] || '');
+    if (!first || first.indexOf('.') >= 0) {
+        return '';
+    }
+    return '/' + first;
+})();
+
+let me = null;
+let categories = [];
+let userCache = {};
+let articlePage = { page: 1, size: 10, total: 0, pages: 1 };
+let userPage = { page: 1, size: 10, total: 0, pages: 1 };
+let logPage = { page: 1, size: 10, total: 0, pages: 1 };
+let editingArticleId = null;
+let editingCategoryId = null;
+let editingUserId = null;
+
+/* ---------------- 通用 ---------------- */
+function toast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(el._t);
+    el._t = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+async function api(url, options) {
+    const opt = Object.assign({ method: 'GET', credentials: 'same-origin', headers: {} }, options || {});
+    if (opt.body && typeof opt.body !== 'string') {
+        opt.headers['Content-Type'] = 'application/json';
+        opt.body = JSON.stringify(opt.body);
+    }
+    const resp = await fetch(API_BASE + url, opt);
+    if (resp.status === 401) {
+        showLogin('登录状态已失效，请重新登录');
+        throw new Error('未登录');
+    }
+    const text = await resp.text();
+    let data;
+    try {
+        data = JSON.parse(text);
+    } catch (e) {
+        throw new Error('响应不是合法 JSON：' + text.slice(0, 80));
+    }
+    if (data.code !== 200) {
+        throw new Error(data.message || ('请求失败：' + data.code));
+    }
+    return data.data;
+}
+
+function hasPerm(code) {
+    if (!me) return false;
+    if ((me.roleCodes || []).indexOf('ADMIN') >= 0) return true;
+    return (me.permissions || []).indexOf(code) >= 0;
+}
+
+function esc(text) {
+    if (text === null || text === undefined) return '';
+    return String(text).replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
+}
+
+const STATUS_TEXT = { DRAFT: '草稿', PENDING: '待审核', PUBLISHED: '已发布', REJECTED: '已驳回', OFFLINE: '已下架' };
+
+function badge(status) {
+    return '<span class="badge st-' + status + '">' + (STATUS_TEXT[status] || status) + '</span>';
+}
+
+/* ---------------- 登录 ---------------- */
+function showLogin(message) {
+    me = null;
+    document.getElementById('appView').style.display = 'none';
+    document.getElementById('loginView').style.display = 'flex';
+    document.getElementById('loginErr').textContent = message || '';
+}
+
+document.getElementById('loginForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const err = document.getElementById('loginErr');
+    err.textContent = '';
+    try {
+        me = await api('/login', {
+            method: 'POST',
+            body: { username: document.getElementById('username').value.trim(), password: document.getElementById('password').value }
+        });
+        enterApp();
+    } catch (ex) {
+        err.textContent = ex.message;
+    }
+});
+
+document.getElementById('logoutBtn').addEventListener('click', async function () {
+    try { await api('/logout', { method: 'POST' }); } catch (e) { /* 忽略 */ }
+    showLogin('已退出登录');
+});
+
+function enterApp() {
+    document.getElementById('loginView').style.display = 'none';
+    document.getElementById('appView').style.display = 'block';
+    document.getElementById('whoName').textContent = me.realName + '（' + me.username + '）';
+    document.getElementById('whoRoles').textContent = '角色：' + (me.roleNames || []).join('、');
+    const need = { dashboard: 'dashboard:view', articles: 'article:list', categories: 'category:list', users: 'user:list', logs: 'log:list' };
+    document.querySelectorAll('.nav-item[data-page]').forEach(item => {
+        item.style.display = hasPerm(need[item.dataset.page]) ? 'block' : 'none';
+    });
+    showPage('dashboard');
+    loadCategories().then(function () {
+        fillCategorySelect(document.getElementById('qCategory'), true);
+        fillCategorySelect(document.getElementById('aCategory'), false);
+    });
+}
+
+function showPage(name) {
+    document.querySelectorAll('.nav-item[data-page]').forEach(i => i.classList.toggle('active', i.dataset.page === name));
+    document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+    const page = document.getElementById('page-' + name);
+    if (page) page.style.display = 'block';
+    if (name === 'dashboard') loadDashboard();
+    if (name === 'articles') loadArticles();
+    if (name === 'categories') loadCategoryTree();
+    if (name === 'users') loadUsers();
+    if (name === 'logs') loadLogs();
+}
+
+document.querySelectorAll('.nav-item[data-page]').forEach(item => item.addEventListener('click', () => showPage(item.dataset.page)));
+
+/* ---------------- 控制台 ---------------- */
+async function loadDashboard() {
+    try {
+        const s = await api('/dashboard/stats');
+        document.getElementById('sTotal').textContent = s.totalArticles;
+        document.getElementById('sPublished').textContent = s.published;
+        document.getElementById('sPending').textContent = s.pending;
+        document.getElementById('sDraft').textContent = s.draft;
+        document.getElementById('sViews').textContent = s.totalViews;
+        const cats = s.byCategory || [];
+        document.getElementById('dashCats').innerHTML = cats.length
+            ? cats.map(c => '<tr><td>' + esc(c.categoryName) + '</td><td>' + c.cnt + '</td></tr>').join('')
+            : '<tr><td colspan="2" class="empty">暂无数据</td></tr>';
+    } catch (e) {
+        toast(e.message);
+    }
+}
+
+/* ---------------- 分类 ---------------- */
+async function loadCategories() {
+    categories = await api('/categories/options');
+    return categories;
+}
+
+function fillCategorySelect(select, withAll) {
+    if (!select) return;
+    select.innerHTML = (withAll ? '<option value="">全部分类</option>' : '')
+        + categories.filter(c => withAll || c.status === 1)
+            .map(c => '<option value="' + c.categoryId + '">' + esc(c.categoryName) + '</option>').join('');
+}
+
+async function loadCategoryTree() {
+    try {
+        const tree = await api('/categories/tree');
+        const rows = [];
+        const walk = function (nodes, depth) {
+            nodes.forEach(function (n) {
+                const pad = '<span class="tree-indent" style="width:' + (depth * 20) + 'px"></span>';
+                rows.push('<tr>'
+                    + '<td>' + pad + esc(n.categoryName) + '</td>'
+                    + '<td>' + esc(n.categoryCode) + '</td>'
+                    + '<td>' + esc(n.parentName || '—') + '</td>'
+                    + '<td>' + n.sort + '</td>'
+                    + '<td>' + (n.status === 1 ? '<span class="badge st-PUBLISHED">启用</span>' : '<span class="badge st-OFFLINE">停用</span>') + '</td>'
+                    + '<td class="ops">'
+                    + '<button class="mini" onclick="openCategory(' + n.categoryId + ')">编辑</button>'
+                    + '<button class="mini" onclick="openCategory(null,' + n.categoryId + ')">新增子类</button>'
+                    + '<button class="mini danger" onclick="removeCategory(' + n.categoryId + ')">删除</button>'
+                    + '</td></tr>');
+                if (n.children && n.children.length) walk(n.children, depth + 1);
+            });
+        };
+        walk(tree || [], 0);
+        document.getElementById('categoryBody').innerHTML = rows.join('') || '<tr><td colspan="6" class="empty">暂无分类</td></tr>';
+    } catch (e) {
+        toast(e.message);
+    }
+}
+
+function openCategory(categoryId, presetParentId) {
+    editingCategoryId = categoryId || null;
+    document.getElementById('categoryTitle').textContent = categoryId ? '编辑分类' : '新增分类';
+    const parentSelect = document.getElementById('cParent');
+    parentSelect.innerHTML = '<option value="0">（一级分类）</option>'
+        + categories.map(c => '<option value="' + c.categoryId + '">' + esc(c.categoryName) + '</option>').join('');
+    const editing = categoryId ? categories.find(c => c.categoryId === categoryId) : null;
+    parentSelect.value = String(editing ? editing.parentId : (presetParentId || 0));
+    document.getElementById('cName').value = editing ? editing.categoryName : '';
+    document.getElementById('cCode').value = editing ? editing.categoryCode : '';
+    document.getElementById('cSort').value = editing ? editing.sort : 1;
+    document.getElementById('cStatus').value = String(editing ? editing.status : 1);
+    document.getElementById('cDesc').value = editing ? (editing.description || '') : '';
+    document.getElementById('categoryMask').classList.add('show');
+}
+
+document.getElementById('addRootCategoryBtn').addEventListener('click', () => openCategory(null, 0));
+document.getElementById('categoryCancel').addEventListener('click', () => document.getElementById('categoryMask').classList.remove('show'));
+
+document.getElementById('categorySave').addEventListener('click', async function () {
+    const body = {
+        parentId: Number(document.getElementById('cParent').value),
+        categoryName: document.getElementById('cName').value.trim(),
+        categoryCode: document.getElementById('cCode').value.trim(),
+        sort: Number(document.getElementById('cSort').value || 0),
+        status: Number(document.getElementById('cStatus').value),
+        description: document.getElementById('cDesc').value.trim()
     };
-
-    const $ = (id) => document.getElementById(id);
-
-    function toast(message, isError) {
-        const box = $('toast');
-        box.textContent = message;
-        box.className = 'show' + (isError ? ' error' : '');
-        clearTimeout(box._timer);
-        box._timer = setTimeout(() => { box.className = ''; }, 2400);
+    try {
+        if (editingCategoryId) {
+            await api('/categories/' + editingCategoryId, { method: 'PUT', body: body });
+        } else {
+            await api('/categories', { method: 'POST', body: body });
+        }
+        document.getElementById('categoryMask').classList.remove('show');
+        toast('已保存');
+        await loadCategories();
+        fillCategorySelect(document.getElementById('qCategory'), true);
+        fillCategorySelect(document.getElementById('aCategory'), false);
+        loadCategoryTree();
+    } catch (e) {
+        toast(e.message);
     }
+});
 
-    /* 部署上下文自动识别：部署为 /、/emp-mis/、/sy2ds_war_exploded/ 都能正常调用接口 */
-    const API_BASE = (function () {
-        const first = (location.pathname.split('/').filter(Boolean)[0] || '');
-        if (!first || first.indexOf('.') >= 0) {
-            return '';   // 部署在 ROOT，或直接用 file:// 打开页面
-        }
-        return '/' + first;
-    })();
+async function removeCategory(categoryId) {
+    if (!confirm('确认删除该分类？')) return;
+    try {
+        await api('/categories/' + categoryId, { method: 'DELETE' });
+        toast('已删除');
+        await loadCategories();
+        fillCategorySelect(document.getElementById('qCategory'), true);
+        loadCategoryTree();
+    } catch (e) {
+        toast(e.message);
+    }
+}
 
-    /* ============================ 请求封装 ============================ */
-    async function api(url, options) {
-        const opts = Object.assign({credentials: 'same-origin', headers: {}}, options || {});
-        if (opts.body && typeof opts.body !== 'string') {
-            opts.headers['Content-Type'] = 'application/json';
-            opts.body = JSON.stringify(opts.body);
-        }
-        const resp = await fetch(url, opts);
-        let payload = null;
+/* ---------------- 文章 ---------------- */
+async function loadArticles() {
+    const params = new URLSearchParams({ page: articlePage.page, size: articlePage.size, orderBy: 'createTime', orderDir: 'desc' });
+    const title = document.getElementById('qTitle').value.trim();
+    const categoryId = document.getElementById('qCategory').value;
+    const status = document.getElementById('qStatus').value;
+    if (title) params.set('title', title);
+    if (categoryId) params.set('categoryId', categoryId);
+    if (status) params.set('status', status);
+    try {
+        const data = await api('/articles?' + params.toString());
+        articlePage.total = data.total;
+        articlePage.pages = data.pages;
+        document.getElementById('articleTotal').textContent = '共 ' + data.total + ' 条';
+        document.getElementById('pageInfo').textContent = data.page + ' / ' + (data.pages || 1);
+        const rows = (data.records || []).map(a => '<tr>'
+            + '<td><input type="checkbox" class="row-check" value="' + a.articleId + '"></td>'
+            + '<td>' + esc(a.title) + '</td>'
+            + '<td>' + esc(a.categoryName || '—') + '</td>'
+            + '<td>' + esc(a.authorName || '—') + '</td>'
+            + '<td>' + badge(a.status) + '</td>'
+            + '<td>' + (a.viewCount || 0) + '</td>'
+            + '<td>' + esc(a.publishTime || '—') + '</td>'
+            + '<td class="ops">' + articleOps(a) + '</td>'
+            + '</tr>');
+        document.getElementById('articleBody').innerHTML = rows.join('') || '<tr><td colspan="8" class="empty">暂无文章</td></tr>';
+    } catch (e) {
+        toast(e.message);
+    }
+}
+
+function articleOps(a) {
+    const id = a.articleId;
+    let ops = '<button class="mini" onclick="viewArticle(' + id + ')">详情</button>';
+    if (hasPerm('article:edit') && (a.status === 'DRAFT' || a.status === 'REJECTED')) {
+        ops += '<button class="mini" onclick="openArticle(' + id + ')">编辑</button>';
+        ops += '<button class="mini" onclick="submitArticle(' + id + ')">提交审核</button>';
+    }
+    if (hasPerm('article:audit') && a.status === 'PENDING') {
+        ops += '<button class="mini" onclick="auditArticle(' + id + ',true)">通过</button>';
+        ops += '<button class="mini danger" onclick="auditArticle(' + id + ',false)">驳回</button>';
+    }
+    if (hasPerm('article:publish') && a.status === 'PUBLISHED') {
+        ops += '<button class="mini" onclick="offlineArticle(' + id + ')">下架</button>';
+    }
+    if (hasPerm('article:delete')) {
+        ops += '<button class="mini danger" onclick="removeArticle(' + id + ')">删除</button>';
+    }
+    return ops;
+}
+
+document.getElementById('qBtn').addEventListener('click', () => { articlePage.page = 1; loadArticles(); });
+document.getElementById('qReset').addEventListener('click', function () {
+    document.getElementById('qTitle').value = '';
+    document.getElementById('qCategory').value = '';
+    document.getElementById('qStatus').value = '';
+    articlePage.page = 1;
+    loadArticles();
+});
+document.getElementById('prevBtn').addEventListener('click', () => {
+    if (articlePage.page > 1) { articlePage.page--; loadArticles(); }
+});
+document.getElementById('nextBtn').addEventListener('click', () => {
+    if (articlePage.page < (articlePage.pages || 1)) { articlePage.page++; loadArticles(); }
+});
+document.getElementById('pageSize').addEventListener('change', function () {
+    articlePage.size = Number(this.value);
+    articlePage.page = 1;
+    loadArticles();
+});
+document.getElementById('checkAll').addEventListener('change', function () {
+    document.querySelectorAll('.row-check').forEach(c => { c.checked = this.checked; });
+});
+
+function checkedArticleIds() {
+    return Array.from(document.querySelectorAll('.row-check:checked')).map(c => Number(c.value));
+}
+
+document.getElementById('batchPublishBtn').addEventListener('click', async function () {
+    const ids = checkedArticleIds();
+    if (!ids.length) { toast('请先勾选文章'); return; }
+    try {
+        const count = await api('/articles/batch-publish', { method: 'PUT', body: ids });
+        toast('已发布 ' + count + ' 篇');
+        loadArticles();
+    } catch (e) {
+        toast(e.message);
+    }
+});
+
+document.getElementById('addArticleBtn').addEventListener('click', () => openArticle(null));
+
+async function openArticle(articleId) {
+    editingArticleId = articleId || null;
+    document.getElementById('articleTitle').textContent = articleId ? '编辑文章' : '新增文章';
+    await loadCategories();
+    fillCategorySelect(document.getElementById('aCategory'), false);
+    document.getElementById('aTitle').value = '';
+    document.getElementById('aSummary').value = '';
+    document.getElementById('aContent').value = '';
+    if (articleId) {
         try {
-            payload = await resp.json();
+            const a = await api('/articles/' + articleId);
+            document.getElementById('aTitle').value = a.title;
+            document.getElementById('aSummary').value = a.summary || '';
+            document.getElementById('aContent').value = a.content || '';
+            document.getElementById('aCategory').value = String(a.categoryId);
         } catch (e) {
-            payload = {code: resp.status, message: '响应不是合法 JSON'};
+            toast(e.message);
+            return;
         }
-        if (resp.status === 401) {
-            showLogin();
-            throw new Error(payload.message || '未登录');
+    }
+    document.getElementById('articleMask').classList.add('show');
+}
+
+document.getElementById('articleCancel').addEventListener('click', () => document.getElementById('articleMask').classList.remove('show'));
+
+async function saveArticle(thenSubmit) {
+    const body = {
+        title: document.getElementById('aTitle').value.trim(),
+        summary: document.getElementById('aSummary').value.trim(),
+        content: document.getElementById('aContent').value,
+        categoryId: Number(document.getElementById('aCategory').value)
+    };
+    if (!body.title) { toast('请填写标题'); return; }
+    if (!body.categoryId) { toast('请选择分类'); return; }
+    if (!body.content.trim()) { toast('请填写正文'); return; }
+    try {
+        let articleId = editingArticleId;
+        if (editingArticleId) {
+            await api('/articles/' + editingArticleId, { method: 'PUT', body: body });
+        } else {
+            const saved = await api('/articles', { method: 'POST', body: body });
+            articleId = saved.articleId;
         }
-        if (!resp.ok || (payload && payload.code !== 200)) {
-            throw new Error((payload && payload.message) || ('请求失败：' + resp.status));
+        document.getElementById('articleMask').classList.remove('show');
+        toast('已保存');
+        if (thenSubmit && articleId) {
+            await api('/articles/' + articleId + '/submit', { method: 'PUT' });
+            toast('已提交审核');
         }
-        return payload.data;
+        loadArticles();
+    } catch (e) {
+        toast(e.message);
     }
+}
 
-    /* ============================ 视图切换 ============================ */
-    function showLogin() {
-        $('appView').style.display = 'none';
-        $('loginView').style.display = 'flex';
+document.getElementById('articleSaveDraft').addEventListener('click', () => saveArticle(false));
+document.getElementById('articleSaveSubmit').addEventListener('click', () => saveArticle(true));
+
+async function viewArticle(articleId) {
+    try {
+        const a = await api('/articles/' + articleId);
+        alert('《' + a.title + '》\n分类：' + (a.categoryName || '—') + '\n作者：' + (a.authorName || '—')
+            + '\n状态：' + (a.statusText || a.status) + '\n阅读：' + a.viewCount
+            + '\n\n' + (a.content || '').replace(/<[^>]+>/g, '').slice(0, 400));
+    } catch (e) {
+        toast(e.message);
     }
+}
 
-    async function showApp(user) {
-        $('loginView').style.display = 'none';
-        $('appView').style.display = 'block';
-        $('whoami').textContent = (user.realName || user.username) + '（' + (user.role || 'USER') + '）';
-        await loadDepts();
-        await loadList();
+async function submitArticle(articleId) {
+    try {
+        await api('/articles/' + articleId + '/submit', { method: 'PUT' });
+        toast('已提交审核');
+        loadArticles();
+    } catch (e) {
+        toast(e.message);
     }
+}
 
-    /* ============================ 部门下拉 ============================ */
-    async function loadDepts() {
-        state.depts = await api(API_BASE + '/depts');
-        const filter = $('qDept');
-        const form = $('fDept');
-        filter.innerHTML = '<option value="">全部部门</option>';
-        form.innerHTML = '';
-        state.depts.forEach((d) => {
-            filter.insertAdjacentHTML('beforeend',
-                `<option value="${d.deptId}">${d.deptName}</option>`);
-            form.insertAdjacentHTML('beforeend',
-                `<option value="${d.deptId}">${d.deptName}</option>`);
+async function auditArticle(articleId, pass) {
+    let remark = '';
+    if (!pass) {
+        remark = prompt('请填写驳回意见：');
+        if (remark === null) return;
+        if (!remark.trim()) { toast('驳回必须填写意见'); return; }
+    }
+    try {
+        await api('/articles/' + articleId + '/audit', {
+            method: 'PUT',
+            body: { status: pass ? 'PUBLISHED' : 'REJECTED', remark: remark }
+        });
+        toast(pass ? '已通过并发布' : '已驳回');
+        loadArticles();
+    } catch (e) {
+        toast(e.message);
+    }
+}
+
+async function offlineArticle(articleId) {
+    try {
+        await api('/articles/' + articleId + '/offline', { method: 'PUT' });
+        toast('已下架');
+        loadArticles();
+    } catch (e) {
+        toast(e.message);
+    }
+}
+
+async function removeArticle(articleId) {
+    if (!confirm('确认删除该文章？')) return;
+    try {
+        await api('/articles/' + articleId, { method: 'DELETE' });
+        toast('已删除');
+        loadArticles();
+    } catch (e) {
+        toast(e.message);
+    }
+}
+
+/* ---------------- 用户 ---------------- */
+async function loadUsers() {
+    const keyword = document.getElementById('qUser').value.trim();
+    const params = new URLSearchParams({ page: userPage.page, size: userPage.size });
+    if (keyword) params.set('keyword', keyword);
+    try {
+        const data = await api('/users?' + params.toString());
+        userPage.total = data.total;
+        userPage.pages = data.pages;
+        document.getElementById('userTotal').textContent = '共 ' + data.total + ' 条';
+        document.getElementById('userPageInfo').textContent = data.page + ' / ' + (data.pages || 1);
+        (data.records || []).forEach(u => { userCache[u.userId] = u; });
+        const rows = (data.records || []).map(u => '<tr>'
+            + '<td>' + esc(u.username) + '</td>'
+            + '<td>' + esc(u.realName) + '</td>'
+            + '<td>' + esc(u.email || '—') + '</td>'
+            + '<td>' + esc(u.phone || '—') + '</td>'
+            + '<td>' + esc((u.roleNames || []).join('、') || '—') + '</td>'
+            + '<td>' + (u.status === 1 ? '<span class="badge st-PUBLISHED">启用</span>' : '<span class="badge st-OFFLINE">禁用</span>') + '</td>'
+            + '<td>' + esc(u.createTime || '—') + '</td>'
+            + '<td class="ops"><button class="mini" onclick="openUser(' + u.userId + ')">编辑</button></td>'
+            + '</tr>');
+        document.getElementById('userBody').innerHTML = rows.join('') || '<tr><td colspan="8" class="empty">暂无用户</td></tr>';
+    } catch (e) {
+        toast(e.message);
+    }
+}
+
+document.getElementById('qUserBtn').addEventListener('click', () => { userPage.page = 1; loadUsers(); });
+document.getElementById('userPrev').addEventListener('click', () => { if (userPage.page > 1) { userPage.page--; loadUsers(); } });
+document.getElementById('userNext').addEventListener('click', () => { if (userPage.page < (userPage.pages || 1)) { userPage.page++; loadUsers(); } });
+
+async function openUser(userId) {
+    editingUserId = userId || null;
+    document.getElementById('userTitle').textContent = userId ? '编辑用户' : '新增用户';
+    let roles = [];
+    try {
+        roles = await api('/roles');
+    } catch (e) {
+        toast(e.message);
+        return;
+    }
+    const data = userId ? (userCache[userId] || null) : null;
+    const rolesBox = document.getElementById('uRoles');
+    rolesBox.innerHTML = roles.map(r => '<label><input type="checkbox" value="' + r.roleId + '"> ' + esc(r.roleName) + '</label>').join('');
+    if (data && data.roleIds) {
+        Array.from(rolesBox.querySelectorAll('input')).forEach(c => {
+            c.checked = data.roleIds.indexOf(Number(c.value)) >= 0;
         });
     }
+    document.getElementById('uUsername').value = data ? data.username : '';
+    document.getElementById('uUsername').disabled = !!data;
+    document.getElementById('uRealName').value = data ? data.realName : '';
+    document.getElementById('uEmail').value = data ? (data.email || '') : '';
+    document.getElementById('uPhone').value = data ? (data.phone || '') : '';
+    document.getElementById('uPassword').value = '';
+    document.getElementById('uStatus').value = String(data ? data.status : 1);
+    document.getElementById('userMask').classList.add('show');
+}
 
-    /* ============================ 列表查询 ============================ */
-    async function loadList() {
-        const params = new URLSearchParams();
-        params.set('page', state.page);
-        params.set('size', state.size);
-        if (state.name) params.set('name', state.name);
-        if (state.gender) params.set('gender', state.gender);
-        if (state.deptId) params.set('deptId', state.deptId);
-        if (state.status !== '') params.set('status', state.status);
+document.getElementById('addUserBtn').addEventListener('click', () => openUser(null));
+document.getElementById('userCancel').addEventListener('click', () => document.getElementById('userMask').classList.remove('show'));
 
-        const data = await api(API_BASE + '/emps?' + params.toString());
-        state.total = data.total;
-        state.pages = Math.max(data.pages, 1);
-        renderRows(data.records);
-        $('pageInfo').textContent = `共 ${data.total} 条记录，第 ${data.page} / ${Math.max(data.pages, 1)} 页`;
-        $('pageNo').textContent = `${data.page} / ${Math.max(data.pages, 1)}`;
-        $('prevBtn').disabled = data.page <= 1;
-        $('nextBtn').disabled = data.page >= data.pages;
-        $('checkAll').checked = false;
+document.getElementById('userSave').addEventListener('click', async function () {
+    const roleIds = Array.from(document.querySelectorAll('#uRoles input:checked')).map(c => Number(c.value));
+    const body = {
+        username: document.getElementById('uUsername').value.trim(),
+        realName: document.getElementById('uRealName').value.trim(),
+        email: document.getElementById('uEmail').value.trim(),
+        phone: document.getElementById('uPhone').value.trim(),
+        status: Number(document.getElementById('uStatus').value),
+        roleIds: roleIds
+    };
+    const password = document.getElementById('uPassword').value;
+    if (password) body.password = password;
+    try {
+        if (editingUserId) {
+            await api('/users/' + editingUserId, { method: 'PUT', body: body });
+        } else {
+            await api('/users', { method: 'POST', body: body });
+        }
+        document.getElementById('userMask').classList.remove('show');
+        toast('已保存');
+        loadUsers();
+    } catch (e) {
+        toast(e.message);
     }
+});
 
-    function renderRows(rows) {
-        const tbody = $('tbody');
-        if (!rows || rows.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="10" class="empty">没有符合条件的数据</td></tr>';
-            return;
-        }
-        tbody.innerHTML = rows.map((r) => `
-            <tr>
-                <td><input type="checkbox" class="row-check" value="${r.empId}"></td>
-                <td class="num">${r.empId}</td>
-                <td>${escapeHtml(r.empName)}</td>
-                <td>${escapeHtml(r.gender)}</td>
-                <td>${escapeHtml(r.deptName || '-')}</td>
-                <td>${escapeHtml(r.post || '-')}</td>
-                <td class="num">${r.salary == null ? '-' : Number(r.salary).toFixed(2)}</td>
-                <td>${r.hireDate || '-'}</td>
-                <td><span class="badge ${r.status === 1 ? 'on' : 'off'}">${r.status === 1 ? '在职' : '离职'}</span></td>
-                <td class="actions">
-                    <button data-edit="${r.empId}">编辑</button>
-                    <button class="danger" data-del="${r.empId}">删除</button>
-                </td>
-            </tr>`).join('');
+/* ---------------- 日志 ---------------- */
+async function loadLogs() {
+    const params = new URLSearchParams({ page: logPage.page, size: logPage.size });
+    const module = document.getElementById('qLogModule').value.trim();
+    const username = document.getElementById('qLogUser').value.trim();
+    const keyword = document.getElementById('qLogKw').value.trim();
+    if (module) params.set('module', module);
+    if (username) params.set('username', username);
+    if (keyword) params.set('keyword', keyword);
+    try {
+        const data = await api('/logs?' + params.toString());
+        logPage.total = data.total;
+        logPage.pages = data.pages;
+        document.getElementById('logTotal').textContent = '共 ' + data.total + ' 条';
+        document.getElementById('logPageInfo').textContent = data.page + ' / ' + (data.pages || 1);
+        const rows = (data.records || []).map(l => '<tr>'
+            + '<td>' + esc(l.createTime) + '</td>'
+            + '<td>' + esc(l.username || '—') + '</td>'
+            + '<td>' + esc(l.module) + '</td>'
+            + '<td>' + esc(l.operation) + '</td>'
+            + '<td>' + esc(l.ip || '—') + '</td>'
+            + '<td>' + (l.costMs || 0) + ' ms</td>'
+            + '<td>' + (l.status === 1 ? '<span class="badge st-PUBLISHED">成功</span>' : '<span class="badge st-REJECTED">失败</span>') + '</td>'
+            + '<td title="' + esc(l.params) + '">' + esc((l.params || '').slice(0, 40)) + '</td>'
+            + '</tr>');
+        document.getElementById('logBody').innerHTML = rows.join('') || '<tr><td colspan="8" class="empty">暂无日志</td></tr>';
+    } catch (e) {
+        toast(e.message);
     }
+}
 
-    function escapeHtml(text) {
-        if (text == null) return '';
-        return String(text).replace(/[&<>"']/g, (c) => ({
-            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-        }[c]));
+document.getElementById('qLogBtn').addEventListener('click', () => { logPage.page = 1; loadLogs(); });
+document.getElementById('logPrev').addEventListener('click', () => { if (logPage.page > 1) { logPage.page--; loadLogs(); } });
+document.getElementById('logNext').addEventListener('click', () => { if (logPage.page < (logPage.pages || 1)) { logPage.page++; loadLogs(); } });
+
+/* ---------------- 启动：探测登录态 ---------------- */
+(async function boot() {
+    try {
+        me = await api('/me');
+        enterApp();
+    } catch (e) {
+        showLogin('');
     }
-
-    /* ============================ 登录 / 退出 ============================ */
-    $('loginForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        $('loginErr').textContent = '';
-        const btn = $('loginBtn');
-        btn.disabled = true;
-        try {
-            const user = await api(API_BASE + '/login', {
-                method: 'POST',
-                body: {username: $('username').value.trim(), password: $('password').value}
-            });
-            await showApp(user);
-        } catch (err) {
-            $('loginErr').textContent = err.message;
-        } finally {
-            btn.disabled = false;
-        }
-    });
-
-    $('logoutBtn').addEventListener('click', async () => {
-        try {
-            await api(API_BASE + '/logout', {method: 'POST'});
-        } catch (e) {
-            /* 忽略：会话可能已过期 */
-        }
-        showLogin();
-    });
-
-    /* ============================ 查询 / 重置 / 分页 ============================ */
-    $('searchBtn').addEventListener('click', () => {
-        state.name = $('qName').value.trim();
-        state.gender = $('qGender').value;
-        state.deptId = $('qDept').value;
-        state.status = $('qStatus').value;
-        state.page = 1;
-        loadList().catch((e) => toast(e.message, true));
-    });
-
-    $('resetBtn').addEventListener('click', () => {
-        $('qName').value = '';
-        $('qGender').value = '';
-        $('qDept').value = '';
-        $('qStatus').value = '';
-        state.name = '';
-        state.gender = '';
-        state.deptId = '';
-        state.status = '';
-        state.page = 1;
-        loadList().catch((e) => toast(e.message, true));
-    });
-
-    $('pageSize').addEventListener('change', (e) => {
-        state.size = Number(e.target.value);
-        state.page = 1;
-        loadList().catch((err) => toast(err.message, true));
-    });
-
-    $('prevBtn').addEventListener('click', () => {
-        if (state.page > 1) {
-            state.page -= 1;
-            loadList().catch((e) => toast(e.message, true));
-        }
-    });
-
-    $('nextBtn').addEventListener('click', () => {
-        if (state.page < state.pages) {
-            state.page += 1;
-            loadList().catch((e) => toast(e.message, true));
-        }
-    });
-
-    $('checkAll').addEventListener('change', (e) => {
-        document.querySelectorAll('.row-check').forEach((c) => { c.checked = e.target.checked; });
-    });
-
-    /* ============================ 新增 / 编辑 ============================ */
-    function openEdit(row) {
-        state.editingId = row ? row.empId : null;
-        $('editTitle').textContent = row ? '编辑员工' : '新增员工';
-        $('editErr').textContent = '';
-        $('fEmpName').value = row ? row.empName : '';
-        $('fGender').value = row ? row.gender : '男';
-        $('fDept').value = row ? row.deptId : (state.depts[0] ? state.depts[0].deptId : '');
-        $('fPost').value = row ? (row.post || '') : '';
-        $('fSalary').value = row ? row.salary : '';
-        $('fHireDate').value = row ? (row.hireDate || '') : new Date().toISOString().slice(0, 10);
-        $('fStatus').value = row ? String(row.status) : '1';
-        $('editMask').classList.add('show');
-    }
-
-    function closeEdit() {
-        $('editMask').classList.remove('show');
-        state.editingId = null;
-    }
-
-    $('addBtn').addEventListener('click', () => openEdit(null));
-    $('cancelBtn').addEventListener('click', closeEdit);
-
-    $('editForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        $('editErr').textContent = '';
-        const body = {
-            empName: $('fEmpName').value.trim(),
-            gender: $('fGender').value,
-            deptId: Number($('fDept').value),
-            post: $('fPost').value.trim(),
-            salary: $('fSalary').value === '' ? null : Number($('fSalary').value),
-            hireDate: $('fHireDate').value || null,
-            status: Number($('fStatus').value)
-        };
-        const btn = $('saveBtn');
-        btn.disabled = true;
-        try {
-            if (state.editingId) {
-                body.empId = state.editingId;
-                await api(API_BASE + '/emps', {method: 'PUT', body: body});
-                toast('修改成功');
-            } else {
-                await api(API_BASE + '/emps', {method: 'POST', body: body});
-                toast('新增成功');
-            }
-            closeEdit();
-            await loadList();
-        } catch (err) {
-            $('editErr').textContent = err.message;
-        } finally {
-            btn.disabled = false;
-        }
-    });
-
-    /* ============================ 删除 ============================ */
-    $('tbody').addEventListener('click', async (e) => {
-        const editId = e.target.getAttribute('data-edit');
-        const delId = e.target.getAttribute('data-del');
-        if (editId) {
-            const data = await api(API_BASE + '/emps/' + editId).catch((err) => toast(err.message, true));
-            if (data) openEdit(data);
-        }
-        if (delId) {
-            if (!confirm('确认删除编号 ' + delId + ' 的员工？')) return;
-            try {
-                await api(API_BASE + '/emps/' + delId, {method: 'DELETE'});
-                toast('删除成功');
-                if (state.page > 1 && state.total % state.size === 1) state.page -= 1;
-                await loadList();
-            } catch (err) {
-                toast(err.message, true);
-            }
-        }
-    });
-
-    $('batchDelBtn').addEventListener('click', async () => {
-        const ids = Array.from(document.querySelectorAll('.row-check:checked'))
-            .map((c) => Number(c.value));
-        if (ids.length === 0) {
-            toast('请先勾选要删除的记录', true);
-            return;
-        }
-        if (!confirm('确认删除选中的 ' + ids.length + ' 条记录？')) return;
-        try {
-            const rows = await api(API_BASE + '/emps', {method: 'DELETE', body: ids});
-            toast('已删除 ' + rows + ' 条记录');
-            state.page = 1;
-            await loadList();
-        } catch (err) {
-            toast(err.message, true);
-        }
-    });
-
-    /* ============================ 启动：探测登录态 ============================ */
-    (async function bootstrap() {
-        try {
-            const user = await api(API_BASE + '/me');
-            await showApp(user);
-        } catch (e) {
-            showLogin();
-        }
-    })();
+})();
 </script>
 </body>
 </html>
